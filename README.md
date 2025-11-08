@@ -33,5 +33,8 @@ The user(counselor) interacts with the student and enters the student's needs in
 The Gemini chatbot sends the data back to the backend where it is analyzed by the Google Gemini 
 The backend produces the resources that the student could utilize to address their problem based on the user's(counselor) feedback
 That data is sent back to the frontend and displayed to the user(counselor) so they can provide the resources to the user. 
- 
+
+Instructions for accessing repository
+1. Clone repository: git clone https://github.com/BE-Hackathon-2025/TEAM_AURA_28.git
+
  
