@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>My Apps • Ballet Academy</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script>
+		(function(){
+			try {
+				const saved = localStorage.getItem('theme');
+				if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+					document.documentElement.classList.add('dark');
+				}
+			} catch(_) {}
+		})();
+	</script>
+	<meta name="color-scheme" content="light dark" />
+	<style>
+		.app-card { transition: box-shadow .25s, transform .25s; }
+		.app-card:hover { box-shadow: 0 8px 24px -6px rgba(0,0,0,.15); transform: translateY(-4px); }
+	</style>
+</head>
+<body class="h-full bg-gray-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans">
+	<!-- Top Bar -->
+	<header class="bg-indigo-900 text-white">
+		<div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+			<div class="flex items-center space-x-4">
+				<div class="flex items-center space-x-2">
+					<div class="w-10 h-10 rounded bg-white flex items-center justify-center"><span class="text-indigo-800 font-bold">BA</span></div>
+					<span class="text-xl font-semibold tracking-wide">Ballet Academy</span>
+				</div>
+			</div>
+			<div class="hidden sm:block text-sm">Hello, <span id="username" class="font-medium">Chisom Okonkwo</span>!</div>
+		</div>
+	</header>
+
+	<!-- Sub header with title and search -->
+	<div class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+		<div class="max-w-7xl mx-auto px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+			<h1 class="text-lg font-semibold">My Apps</h1>
+			<div class="relative w-full sm:w-80">
+				<input id="appSearch" type="text" placeholder="Search apps..." class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" aria-label="Search applications" />
+				<span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs" id="matchCount"></span>
+			</div>
+		</div>
+	</div>
+
+	<!-- Apps Grid -->
+	<main class="max-w-7xl mx-auto px-6 py-8">
+		<section aria-labelledby="apps-heading">
+			<h2 id="apps-heading" class="sr-only">Application launcher</h2>
+			<div id="appsGrid" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+				<!-- Cards injected here -->
+			</div>
+			<p id="emptyState" class="mt-8 hidden text-sm text-slate-500">No apps match your search.</p>
+		</section>
+	</main>
+
+	<footer class="max-w-7xl mx-auto px-6 py-10 text-xs text-slate-500 dark:text-slate-400">
+		© 2025 Ballet Academy • Application Portal
+	</footer>
+
+	<script>
+		const apps = [
+			{
+				key: 'm365',
+				name: 'Microsoft 365',
+				desc: 'Web-based suite of enterprise-grade productivity applications.',
+				color: 'bg-white',
+				logo: 'https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg'
+			},
+		{
+			key: 'outlook',
+			name: 'Outlook',
+			desc: 'Email, calendar, contacts, tasks & more—together in one place.',
+			color: 'bg-[#0366d6] text-white',
+		},
+		{
+			key: 'powerCampus',
+			name: 'Power Campus',
+			desc: 'Enterprise reporting & analytics for academic progress & trends.',
+			color: 'bg-red-700 text-white',
+			logo: ''
+		},
+		{
+			key: 'canvas',
+			name: 'Canvas',
+			desc: 'Cloud-based LMS supporting teaching & learning across devices.',
+			color: 'bg-gradient-to-br from-pink-700 to-red-700 text-white',
+			logo: 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fnews.unm.edu%2Ffile%3Ffid%3D6087375ab3aed35eac01a3cb&psig=AOvVaw1FwrUj-WBHwvHQbpL_AsoN&ust=1762688074774000&source=images&cd=vfe&opi=89978449&ved=0CBMQjRxqFwoTCIjx2fi64pADFQAAAAAdAAAAABAEdata:image/png;base64,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'
+		},
+		{
+			key: 'soar',
+			name: 'BA SOAR',
+			desc: 'Student Orientation • Advising • Retention portal link.',
+			color: 'bg-white',
+			logo: 'https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg'
+		},
+		{
+			key: 'upswing',
+			name: 'Upswing Tutoring',
+			desc: 'Meet tutors in-person or online 24/7. Schedule or drop in instantly.',
+			color: 'bg-white',
+			logo: 'https://images-platform.99static.com//r_e5TKa7dM_Nlfp-qry6orqdYV0=/150x0:853x703/fit-in/500x500/99designs-contests-attachments/43/43861/attachment_43861567'
+		},
+		{
+			key: 'library',
+			name: 'Digital Library',
+			desc: 'Print, online, audio & special resources for study & research.',
+			color: 'bg-white',
+			logo: 'https://upload.wikimedia.org/wikipedia/commons/4/4a/Logo_2013_Google.png'
+		}
+	];
+
+		function cardTemplate(app){
+			return `<article tabindex="0" role="button" aria-label="Launch ${app.name}" class="app-card group rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm p-0 flex flex-col">
+				<div class="h-32 ${app.color} flex items-center justify-center rounded-t-xl overflow-hidden">
+					${app.logo ? `<img src='${app.logo}' alt='${app.name} logo' class='max-h-14'>` : `<span class='text-xl font-bold'>${app.name.split(' ')[0]}</span>`}
+				</div>
+				<div class="p-5 flex flex-col grow">
+					<h3 class="font-semibold mb-1 text-slate-800 dark:text-slate-100">${app.name}</h3>
+					<p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">${app.desc}</p>
+					<div class="mt-4">
+						<button class="text-xs font-medium px-3 py-1.5 rounded bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">Open</button>
+					</div>
+				</div>
+			</article>`;
+		}
+
+		function renderApps(list){
+			const grid = document.getElementById('appsGrid');
+			grid.innerHTML = list.map(cardTemplate).join('');
+			document.getElementById('matchCount').textContent = list.length ? `${list.length} shown` : '0';
+			document.getElementById('emptyState').classList.toggle('hidden', !!list.length);
+		}
+
+		renderApps(apps);
+
+		// Search filtering with debounce
+		let t; const searchInput = document.getElementById('appSearch');
+		searchInput.addEventListener('input', () => {
+			clearTimeout(t);
+			t = setTimeout(() => {
+				const q = searchInput.value.trim().toLowerCase();
+				if (!q){ renderApps(apps); return; }
+				const filtered = apps.filter(a => a.name.toLowerCase().includes(q) || a.desc.toLowerCase().includes(q));
+				renderApps(filtered);
+			}, 150);
+		});
+	</script>
+</body>
+</html>

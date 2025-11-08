@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>My Apps • Ballet Academy</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script>
+		(function(){
+			try {
+				const saved = localStorage.getItem('theme');
+				if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+					document.documentElement.classList.add('dark');
+				}
+			} catch(_) {}
+		})();
+	</script>
+	<meta name="color-scheme" content="light dark" />
+	<style>
+		.app-card { transition: box-shadow .25s, transform .25s; }
+		.app-card:hover { box-shadow: 0 8px 24px -6px rgba(0,0,0,.15); transform: translateY(-4px); }
+	</style>
+</head>
+<body class="h-full bg-gray-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans">
+	<!-- Top Bar -->
+	<header class="bg-indigo-900 text-white">
+		<div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+			<div class="flex items-center space-x-4">
+				<div class="flex items-center space-x-2">
+					<div class="w-10 h-10 rounded bg-white flex items-center justify-center"><span class="text-indigo-800 font-bold">BA</span></div>
+					<span class="text-xl font-semibold tracking-wide">Ballet Academy</span>
+				</div>
+			</div>
+			<div class="hidden sm:block text-sm">Hello, <span id="username" class="font-medium">Counselor</span>!</div>
+		</div>
+	</header>
+
+	<!-- Sub header with title and search -->
+	<div class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+		<div class="max-w-7xl mx-auto px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+			<h1 class="text-lg font-semibold">My Apps</h1>
+			<div class="relative w-full sm:w-80">
+				<input id="appSearch" type="text" placeholder="Search apps..." class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" aria-label="Search applications" />
+				<span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs" id="matchCount"></span>
+			</div>
+		</div>
+	</div>
+
+	<!-- Apps Grid -->
+	<main class="max-w-7xl mx-auto px-6 py-8">
+		<section aria-labelledby="apps-heading">
+			<h2 id="apps-heading" class="sr-only">Application launcher</h2>
+			<div id="appsGrid" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+				<!-- Cards injected here -->
+			</div>
+			<p id="emptyState" class="mt-8 hidden text-sm text-slate-500">No apps match your search.</p>
+		</section>
+	</main>
+
+	<footer class="max-w-7xl mx-auto px-6 py-10 text-xs text-slate-500 dark:text-slate-400">
+		© 2025 Ballet Academy • Application Portal
+	</footer>
+
+	<script>
+		const apps = [
+			{
+				key: 'm365',
+				name: 'Microsoft 365',
+				desc: 'Web-based suite of enterprise-grade productivity applications.',
+				color: 'bg-white',
+				logo: 'https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg'
+			},
+		{
+			key: 'outlook',
+			name: 'Outlook',
+			desc: 'Email, calendar, contacts, tasks & more—together in one place.',
+			color: 'bg-[#0366d6] text-white',
+			logo: 'https://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Office_Outlook_%282018%E2%80%93present%29.svg'
+		},
+		{
+			key: 'powerCampus',
+			name: 'Power Campus',
+			desc: 'Enterprise reporting & analytics for academic progress & trends.',
+			color: 'bg-red-700 text-white',
+			logo: ''
+		},
+		{
+			key: 'canvas',
+			name: 'Canvas',
+			desc: 'Cloud-based LMS supporting teaching & learning across devices.',
+			color: 'bg-gradient-to-br from-pink-700 to-red-700 text-white',
+			logo: 'https://upload.wikimedia.org/wikipedia/commons/2/20/Instructure_Logo.svg'
+		},
+		{
+			key: 'soar',
+			name: 'BA SOAR',
+			desc: 'Student Orientation • Advising • Retention portal link.',
+			color: 'bg-white',
+			logo: 'https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg'
+		},
+		{
+			key: 'upswing',
+			name: 'Upswing Tutoring',
+			desc: 'Meet tutors in-person or online 24/7. Schedule or drop in instantly.',
+			color: 'bg-white',
+			logo: 'https://upload.wikimedia.org/wikipedia/commons/8/87/Google_Classroom_Logo.svg'
+		},
+		{
+			key: 'library',
+			name: 'Digital Library',
+			desc: 'Print, online, audio & special resources for study & research.',
+			color: 'bg-white',
+			logo: 'https://upload.wikimedia.org/wikipedia/commons/4/4a/Logo_2013_Google.png'
+		},
+		{
+			key: 'connected',
+			name: 'ConnectEd',
+			desc: 'Connecting Students\' to the resources they need',
+			color: 'bg-white',
+			logo: 'data:image/png;base64,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',
+			url: 'index.html'
+		},
+      
+	];
+
+	function cardTemplate(app){
+		return `<article tabindex="0" role="button" aria-label="Launch ${app.name}" onclick="${app.url ? `window.location.href='${app.url}'` : ''}" class="app-card group rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm p-0 flex flex-col ${app.url ? 'cursor-pointer' : ''}">
+			<div class="h-32 ${app.color} flex items-center justify-center rounded-t-xl overflow-hidden">
+				${app.logo ? `<img src='${app.logo}' alt='${app.name} logo' class='max-h-14'>` : `<span class='text-xl font-bold'>${app.name.split(' ')[0]}</span>`}
+			</div>
+			<div class="p-5 flex flex-col grow">
+				<h3 class="font-semibold mb-1 text-slate-800 dark:text-slate-100">${app.name}</h3>
+				<p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">${app.desc}</p>
+				<div class="mt-4">
+					<button class="text-xs font-medium px-3 py-1.5 rounded bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">Open</button>
+				</div>
+			</div>
+		</article>`;
+		}
+
+		function renderApps(list){
+			const grid = document.getElementById('appsGrid');
+			grid.innerHTML = list.map(cardTemplate).join('');
+			document.getElementById('matchCount').textContent = list.length ? `${list.length} shown` : '0';
+			document.getElementById('emptyState').classList.toggle('hidden', !!list.length);
+		}
+
+		renderApps(apps);
+
+		// Search filtering with debounce
+		let t; const searchInput = document.getElementById('appSearch');
+		searchInput.addEventListener('input', () => {
+			clearTimeout(t);
+			t = setTimeout(() => {
+				const q = searchInput.value.trim().toLowerCase();
+				if (!q){ renderApps(apps); return; }
+				const filtered = apps.filter(a => a.name.toLowerCase().includes(q) || a.desc.toLowerCase().includes(q));
+				renderApps(filtered);
+			}, 150);
+		});
+	</script>
+</body>
+</html>

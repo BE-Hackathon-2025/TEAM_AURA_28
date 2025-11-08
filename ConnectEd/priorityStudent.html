@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Priority Students - ConnectEd</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #6b46c1 0%, #805ad5 100%);
+        }
+        .student-card {
+            transition: transform 0.2s;
+        }
+        .student-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation for all HTML files -->
+    <nav class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <i data-feather="bar-chart-2" class="w-8 h-8"></i>
+                    <a href="index.html" class="text-xl font-bold hover:text-gray-200">ConnectEd</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <i data-feather="bell" class="w-6 h-6"></i>
+                        <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </div>
+                    <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center">
+                        <i data-feather="user" class="text-purple-700"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-6 py-8">
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">Priority Students</h1>
+                <p class="text-gray-600">Students requiring immediate attention or additional support</p>
+            </div>
+            <div class="flex space-x-4">
+                <select class="px-4 py-2 border rounded-lg text-gray-600">
+                    <option>Sort by: Priority Level</option>
+                    <option>Sort by: Recent Activity</option>
+                    <option>Sort by: Name</option>
+                </select>
+                <button class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                    <i data-feather="plus" class="w-4 h-4 inline-block mr-1"></i>
+                    Add Student
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Student Card 4 (dynamic - populated from data.js) -->
+            <a id="student-john-link" href="dashboard.html?student=John%20Smith" class="block">
+                <div id="student-john-card" class="bg-white rounded-xl shadow-md p-6 student-card">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center">
+                            <div id="student-john-initials" class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mr-4">
+                                <span class="text-red-600 font-semibold">JS</span>
+                            </div>
+                            <div>
+                                <h3 id="student-john-name" class="font-bold text-gray-800">John Smith</h3>
+                                <p id="student-john-grade" class="text-sm text-gray-500">Grade 9</p>
+                            </div>
+                        </div>
+                        <span id="student-john-priority" class="px-2 py-1 bg-red-100 text-red-600 text-xs rounded-full">High Priority</span>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Current GPA</span>
+                            <span id="student-john-gpa" class="text-red-600 font-medium">—</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Attendance</span>
+                            <span id="student-john-attendance" class="text-red-600 font-medium">62%</span>
+                        </div>
+                        <p id="student-john-issues" class="text-sm text-gray-600 mt-2">Issues: —</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Student Card 5 -->
+            <a href="dashboard.html?student=Emily%20Johnson" class="block">
+                <div class="bg-white rounded-xl shadow-md p-6 student-card">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center mr-4">
+                                <span class="text-orange-600 font-semibold">EJ</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800">Emily Johnson</h3>
+                                <p class="text-sm text-gray-500">Grade 10</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 bg-orange-100 text-orange-600 text-xs rounded-full">Medium Priority</span>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Current GPA</span>
+                            <span class="text-orange-600 font-medium">2.6</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Attendance</span>
+                            <span class="text-orange-600 font-medium">58%</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Issues: Inconsistent homework submission</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Student Card 6 -->
+            <a href="dashboard.html?student=Michael%20Brown" class="block">
+                <div class="bg-white rounded-xl shadow-md p-6 student-card">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center mr-4">
+                                <span class="text-yellow-600 font-semibold">MB</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800">Michael Brown</h3>
+                                <p class="text-sm text-gray-500">Grade 11</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 bg-yellow-100 text-yellow-600 text-xs rounded-full">Watch List</span>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Current GPA</span>
+                            <span class="text-yellow-600 font-medium">2.9</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Attendance</span>
+                            <span class="text-yellow-600 font-medium">54%</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Issues: Borderline performance in Science</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Student Card 7 -->
+            <a href="dashboard.html?student=Sarah%20Davis" class="block">
+                <div class="bg-white rounded-xl shadow-md p-6 student-card">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mr-4">
+                                <span class="text-red-600 font-semibold">SD</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800">Sarah Davis</h3>
+                                <p class="text-sm text-gray-500">Grade 12</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 bg-red-100 text-red-600 text-xs rounded-full">High Priority</span>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Current GPA</span>
+                            <span class="text-red-600 font-medium">1.7</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Attendance</span>
+                            <span class="text-red-600 font-medium">56%</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Issues: Low attendance affecting grades</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Student Card 8 -->
+            <a href="dashboard.html?student=David%20Wilson" class="block">
+                <div class="bg-white rounded-xl shadow-md p-6 student-card">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center mr-4">
+                                <span class="text-orange-600 font-semibold">DW</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800">David Wilson</h3>
+                                <p class="text-sm text-gray-500">Grade 9</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 bg-orange-100 text-orange-600 text-xs rounded-full">Medium Priority</span>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Current GPA</span>
+                            <span class="text-orange-600 font-medium">2.4</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Attendance</span>
+                            <span class="text-orange-600 font-medium">64%</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Issues: Needs support in Mathematics</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Student Card 9 -->
+            <a href="dashboard.html?student=Jennifer%20Miller" class="block">
+                <div class="bg-white rounded-xl shadow-md p-6 student-card">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center mr-4">
+                                <span class="text-yellow-600 font-semibold">JM</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800">Jennifer Miller</h3>
+                                <p class="text-sm text-gray-500">Grade 10</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 bg-yellow-100 text-yellow-600 text-xs rounded-full">Watch List</span>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Current GPA</span>
+                            <span class="text-yellow-600 font-medium">2.7</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Attendance</span>
+                            <span class="text-yellow-600 font-medium">63%</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Issues: Minor dip in recent test scores</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Student Card 10 -->
+            <a href="dashboard.html?student=Robert%20Taylor" class="block">
+                <div class="bg-white rounded-xl shadow-md p-6 student-card">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mr-4">
+                                <span class="text-red-600 font-semibold">RT</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800">Robert Taylor</h3>
+                                <p class="text-sm text-gray-500">Grade 11</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 bg-red-100 text-red-600 text-xs rounded-full">High Priority</span>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Current GPA</span>
+                            <span class="text-red-600 font-medium">1.5</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Attendance</span>
+                            <span class="text-red-600 font-medium">52%</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Issues: Failing multiple core subjects</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Student Card 11 -->
+            <a href="dashboard.html?student=Jessica%20Anderson" class="block">
+                <div class="bg-white rounded-xl shadow-md p-6 student-card">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center mr-4">
+                                <span class="text-orange-600 font-semibold">JA</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800">Jessica Anderson</h3>
+                                <p class="text-sm text-gray-500">Grade 12</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 bg-orange-100 text-orange-600 text-xs rounded-full">Medium Priority</span>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Current GPA</span>
+                            <span class="text-orange-600 font-medium">2.5</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Attendance</span>
+                            <span class="text-orange-600 font-medium">59%</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Issues: Struggling with advanced coursework</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Student Card 12 -->
+            <a href="dashboard.html?student=Christopher%20Martinez" class="block">
+                <div class="bg-white rounded-xl shadow-md p-6 student-card">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center mr-4">
+                                <span class="text-yellow-600 font-semibold">CM</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800">Christopher Martinez</h3>
+                                <p class="text-sm text-gray-500">Grade 9</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 bg-yellow-100 text-yellow-600 text-xs rounded-full">Watch List</span>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Current GPA</span>
+                            <span class="text-yellow-600 font-medium">2.8</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Attendance</span>
+                            <span class="text-yellow-600 font-medium">57%</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Issues: Needs monitoring for improvement</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Student Card 13 -->
+            <a href="dashboard.html?student=Amanda%20Thomas" class="block">
+                <div class="bg-white rounded-xl shadow-md p-6 student-card">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mr-4">
+                                <span class="text-red-600 font-semibold">AT</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800">Amanda Thomas</h3>
+                                <p class="text-sm text-gray-500">Grade 10</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 bg-red-100 text-red-600 text-xs rounded-full">High Priority</span>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Current GPA</span>
+                            <span class="text-red-600 font-medium">1.9</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Attendance</span>
+                            <span class="text-red-600 font-medium">61%</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Issues: Poor attendance and grades</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Student Card 14 -->
+            <a href="dashboard.html?student=Daniel%20Jackson" class="block">
+                <div class="bg-white rounded-xl shadow-md p-6 student-card">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center mr-4">
+                                <span class="text-orange-600 font-semibold">DJ</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800">Daniel Jackson</h3>
+                                <p class="text-sm text-gray-500">Grade 11</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 bg-orange-100 text-orange-600 text-xs rounded-full">Medium Priority</span>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Current GPA</span>
+                            <span class="text-orange-600 font-medium">2.6</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Attendance</span>
+                            <span class="text-orange-600 font-medium">58%</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Issues: Declining performance in History</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Student Card 15 -->
+            <a href="dashboard.html?student=Michelle%20White" class="block">
+                <div class="bg-white rounded-xl shadow-md p-6 student-card">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center mr-4">
+                                <span class="text-yellow-600 font-semibold">MW</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800">Michelle White</h3>
+                                <p class="text-sm text-gray-500">Grade 12</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 bg-yellow-100 text-yellow-600 text-xs rounded-full">Watch List</span>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Current GPA</span>
+                            <span class="text-yellow-600 font-medium">2.9</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Attendance</span>
+                            <span class="text-yellow-600 font-medium">65%</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Issues: Recent slump in English class</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Student Card 16 -->
+            <a href="dashboard.html?student=Kevin%20Harris" class="block">
+                <div class="bg-white rounded-xl shadow-md p-6 student-card">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mr-4">
+                                <span class="text-red-600 font-semibold">KH</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800">Kevin Harris</h3>
+                                <p class="text-sm text-gray-500">Grade 9</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 bg-red-100 text-red-600 text-xs rounded-full">High Priority</span>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Current GPA</span>
+                            <span class="text-red-600 font-medium">1.6</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Attendance</span>
+                            <span class="text-red-600 font-medium">55%</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Issues: Low grades and poor attendance</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Student Card 17 -->
+            <a href="dashboard.html?student=Lisa%20Martin" class="block">
+                <div class="bg-white rounded-xl shadow-md p-6 student-card">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center mr-4">
+                                <span class="text-orange-600 font-semibold">LM</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800">Lisa Martin</h3>
+                                <p class="text-sm text-gray-500">Grade 10</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 bg-orange-100 text-orange-600 text-xs rounded-full">Medium Priority</span>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Current GPA</span>
+                            <span class="text-orange-600 font-medium">2.4</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Attendance</span>
+                            <span class="text-orange-600 font-medium">60%</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Issues: Needs tutoring in Math</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Student Card 18 -->
+            <a href="dashboard.html?student=Matthew%20Thompson" class="block">
+                <div class="bg-white rounded-xl shadow-md p-6 student-card">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center mr-4">
+                                <span class="text-yellow-600 font-semibold">MT</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800">Matthew Thompson</h3>
+                                <p class="text-sm text-gray-500">Grade 11</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 bg-yellow-100 text-yellow-600 text-xs rounded-full">Watch List</span>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Current GPA</span>
+                            <span class="text-yellow-600 font-medium">2.7</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Attendance</span>
+                            <span class="text-yellow-600 font-medium">63%</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Issues: Borderline in Physics</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Student Card 19 -->
+            <a href="dashboard.html?student=Stephanie%20Garcia" class="block">
+                <div class="bg-white rounded-xl shadow-md p-6 student-card">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mr-4">
+                                <span class="text-red-600 font-semibold">SG</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800">Stephanie Garcia</h3>
+                                <p class="text-sm text-gray-500">Grade 12</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 bg-red-100 text-red-600 text-xs rounded-full">High Priority</span>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Current GPA</span>
+                            <span class="text-red-600 font-medium">2.0</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Attendance</span>
+                            <span class="text-red-600 font-medium">56%</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Issues: At risk of not graduating</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Student Card 20 -->
+            <a href="dashboard.html?student=Andrew%20Robinson" class="block">
+                <div class="bg-white rounded-xl shadow-md p-6 student-card">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center mr-4">
+                                <span class="text-orange-600 font-semibold">AR</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800">Andrew Robinson</h3>
+                                <p class="text-sm text-gray-500">Grade 9</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 bg-orange-100 text-orange-600 text-xs rounded-full">Medium Priority</span>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Current GPA</span>
+                            <span class="text-orange-600 font-medium">2.5</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Attendance</span>
+                            <span class="text-orange-600 font-medium">59%</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Issues: Missing assignments</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Student Card 21 -->
+            <a href="dashboard.html?student=Nicole%20Clark" class="block">
+                <div class="bg-white rounded-xl shadow-md p-6 student-card">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center mr-4">
+                                <span class="text-yellow-600 font-semibold">NC</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800">Nicole Clark</h3>
+                                <p class="text-sm text-gray-500">Grade 10</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 bg-yellow-100 text-yellow-600 text-xs rounded-full">Watch List</span>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Current GPA</span>
+                            <span class="text-yellow-600 font-medium">2.8</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Attendance</span>
+                            <span class="text-yellow-600 font-medium">62%</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Issues: Slight decline in Biology</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Student Card 22 -->
+            <a href="dashboard.html?student=Joshua%20Rodriguez" class="block">
+                <div class="bg-white rounded-xl shadow-md p-6 student-card">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mr-4">
+                                <span class="text-red-600 font-semibold">JR</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800">Joshua Rodriguez</h3>
+                                <p class="text-sm text-gray-500">Grade 11</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 bg-red-100 text-red-600 text-xs rounded-full">High Priority</span>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Current GPA</span>
+                            <span class="text-red-600 font-medium">1.8</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Attendance</span>
+                            <span class="text-red-600 font-medium">57%</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Issues: Critical intervention needed</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Student Card 23 -->
+            <a href="dashboard.html?student=Elizabeth%20Lewis" class="block">
+                <div class="bg-white rounded-xl shadow-md p-6 student-card">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center mr-4">
+                                <span class="text-orange-600 font-semibold">EL</span>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-800">Elizabeth Lewis</h3>
+                                <p class="text-sm text-gray-500">Grade 12</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 bg-orange-100 text-orange-600 text-xs rounded-full">Medium Priority</span>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Current GPA</span>
+                            <span class="text-orange-600 font-medium">2.6</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Attendance</span>
+                            <span class="text-orange-600 font-medium">60%</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Issues: Struggling with college prep courses</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </main>
+
+    <script type="module">
+        import { studentGPAData, studentGradesData } from './data.js';
+
+        // Populate the John Smith card using the exported data sets.
+        // Assumption: studentGPAData uses `Name`, studentGradesData uses `Name2`.
+        // Priority mapping (reasonable assumption): GPA < 2.0 -> High, 2.0-2.49 -> Medium, >=2.5 -> Watch List
+        document.addEventListener('DOMContentLoaded', () => {
+            const name = 'John Smith';
+            const gpaEntry = studentGPAData.find(s => s.Name === name);
+            const gradesEntry = studentGradesData.find(s => s.Name2 === name);
+
+            if (gpaEntry) {
+                const gpaEl = document.getElementById('student-john-gpa');
+                if (gpaEl) gpaEl.textContent = gpaEntry.GPA;
+            }
+
+            if (gradesEntry) {
+                const attEl = document.getElementById('student-john-attendance');
+                if (attEl) attEl.textContent = gradesEntry.Attendance || '—';
+
+                // Build a short issues summary from available fields
+                const issuesEl = document.getElementById('student-john-issues');
+                const issues = [];
+                if (gradesEntry.Absences && Number(gradesEntry.Absences) > 18) {
+                    issues.push(`Absences: ${gradesEntry.Absences}`);
+                }
+                if (typeof gradesEntry.Week1 !== 'undefined' && Number(gradesEntry.Week1) < 50) {
+                    issues.push('Low early performance');
+                }
+                if (issues.length) issuesEl.textContent = 'Issues: ' + issues.join('; ');
+                else if (issuesEl) issuesEl.textContent = 'Issues: Needs review';
+            }
+
+            // Initials
+            const initialsSpan = document.querySelector('#student-john-initials span');
+            if (initialsSpan) {
+                const initials = name.split(' ').map(p => p[0]).slice(0,2).join('').toUpperCase();
+                initialsSpan.textContent = initials;
+            }
+
+            // Priority badge (derived from GPA if available)
+            const priorityEl = document.getElementById('student-john-priority');
+            if (priorityEl && gpaEntry) {
+                const gpaNum = parseFloat(gpaEntry.GPA);
+                if (!isNaN(gpaNum)) {
+                    if (gpaNum < 2.0) {
+                        priorityEl.textContent = 'High Priority';
+                        priorityEl.className = 'px-2 py-1 bg-red-100 text-red-600 text-xs rounded-full';
+                    } else if (gpaNum < 2.5) {
+                        priorityEl.textContent = 'Medium Priority';
+                        priorityEl.className = 'px-2 py-1 bg-orange-100 text-orange-600 text-xs rounded-full';
+                    } else {
+                        priorityEl.textContent = 'Watch List';
+                        priorityEl.className = 'px-2 py-1 bg-yellow-100 text-yellow-600 text-xs rounded-full';
+                    }
+                }
+            }
+
+            // Keep the link target in sync
+            const link = document.getElementById('student-john-link');
+            if (link) link.href = `dashboard.html?student=${encodeURIComponent(name)}`;
+
+            // Initialize Feather icons after DOM changes
+            if (typeof feather !== 'undefined' && feather.replace) feather.replace();
+        });
+    </script>
+</body>
+</html>

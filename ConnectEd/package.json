@@ -1,0 +1,17 @@
+{
+  "name": "index.js",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.68.0",
+    "@google/genai": "^1.29.0",
+    "@google/generative-ai": "^0.24.1",
+    "@gradio/client": "^1.7.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@gradio/client": "^2.0.0-dev.1"
+  }
+}

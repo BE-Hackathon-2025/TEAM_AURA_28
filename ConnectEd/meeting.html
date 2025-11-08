@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upcoming Check-Ins - ConnectEd</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #6b46c1 0%, #805ad5 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation for all HTML files -->
+    <nav class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <i data-feather="bar-chart-2" class="w-8 h-8"></i>
+                    <a href="index.html" class="text-xl font-bold hover:text-gray-200">ConnectEd</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <i data-feather="bell" class="w-6 h-6"></i>
+                        <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </div>
+                    <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center">
+                        <i data-feather="user" class="text-purple-700"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-6 py-8">
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">Upcoming Check-Ins</h1>
+                <p class="text-gray-600">Scheduled meetings and check-ins with teachers</p>
+            </div>
+            <button class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                <i data-feather="plus" class="w-4 h-4 inline-block mr-1"></i>
+                Schedule New Meeting
+            </button>
+        </div>
+
+        <div class="grid gap-6">
+            <!-- Today's Meetings -->
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Today</h2>
+                <div class="space-y-4">
+                    <div class="flex items-center p-4 bg-purple-50 rounded-lg">
+                        <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mr-4">
+                            <i data-feather="clock" class="w-6 h-6 text-purple-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-medium text-gray-800">Math Progress Review</h3>
+                            <p class="text-sm text-gray-600">2:00 PM - 2:30 PM</p>
+                            <p class="text-sm text-gray-600">with Prof. Johnson</p>
+                        </div>
+                        <button class="px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700">
+                            Join
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Meetings -->
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Upcoming</h2>
+                <div class="space-y-4">
+                    <div class="flex items-center p-4 border border-gray-100 rounded-lg">
+                        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                            <i data-feather="calendar" class="w-6 h-6 text-blue-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-medium text-gray-800">Physics Lab Discussion</h3>
+                            <p class="text-sm text-gray-600">Tomorrow, 10:00 AM</p>
+                            <p class="text-sm text-gray-600">with Prof. Smith</p>
+                        </div>
+                        <button class="px-3 py-1 border border-gray-300 text-gray-700 rounded hover:bg-gray-50">
+                            Details
+                        </button>
+                    </div>
+
+                    <div class="flex items-center p-4 border border-gray-100 rounded-lg">
+                        <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
+                            <i data-feather="calendar" class="w-6 h-6 text-green-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-medium text-gray-800">English Essay Review</h3>
+                            <p class="text-sm text-gray-600">Nov 8, 1:30 PM</p>
+                            <p class="text-sm text-gray-600">with Prof. Williams</p>
+                        </div>
+                        <button class="px-3 py-1 border border-gray-300 text-gray-700 rounded hover:bg-gray-50">
+                            Details
+                        </button>
+                    </div>
+
+                    <div class="flex items-center p-4 border border-gray-100 rounded-lg">
+                        <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center mr-4">
+                            <i data-feather="calendar" class="w-6 h-6 text-orange-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-medium text-gray-800">Chemistry Project Discussion</h3>
+                            <p class="text-sm text-gray-600">Nov 10, 3:00 PM</p>
+                            <p class="text-sm text-gray-600">with Prof. Davis</p>
+                        </div>
+                        <button class="px-3 py-1 border border-gray-300 text-gray-700 rounded hover:bg-gray-50">
+                            Details
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Initialize Feather Icons
+        feather.replace();
+    </script>
+</body>
+</html>

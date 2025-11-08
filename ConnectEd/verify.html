@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Single sign-on • Ballet Academy</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<style>
+		/* Soft abstract background shape similar to the screenshot */
+		.soft-bg {
+			position: absolute;
+			inset: 0;
+			overflow: hidden;
+			pointer-events: none;
+		}
+		.soft-bg::before {
+			content: "";
+			position: absolute;
+			left: 50%;
+			top: 20%;
+			width: 1200px;
+			height: 1200px;
+			transform: translateX(-50%);
+			background: radial-gradient(closest-side, rgba(99,102,241,0.12), transparent 70%);
+			filter: blur(2px);
+		}
+		.card-shadow { box-shadow: 0 20px 45px rgba(2,6,23,0.08); }
+	</style>
+	<script>
+		// Apply saved theme early if your site uses the global dark-mode toggle
+		(function() {
+			try {
+				const saved = localStorage.getItem('theme');
+				if (saved === 'dark' || (!saved && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+					document.documentElement.classList.add('dark');
+				}
+			} catch (_) {}
+		})();
+	</script>
+	<meta name="color-scheme" content="light dark" />
+</head>
+<body class="min-h-screen bg-white dark:bg-slate-900 flex">
+	<!-- Left image panel -->
+	<div class="hidden lg:block relative w-1/2 h-screen overflow-hidden">
+		<img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1400&q=60" alt="Campus" class="w-full h-full object-cover">
+		<div class="absolute inset-0 bg-slate-900/40"></div>
+		<div class="absolute top-10 left-10">
+			<div class="backdrop-blur-sm bg-white/20 dark:bg-slate-800/30 px-5 py-3 rounded-xl border border-white/30">
+				<span class="text-xl font-semibold tracking-wide text-white">Ballet Academy</span>
+			</div>
+		</div>
+	</div>
+
+	<!-- Right verification panel -->
+	<div class="w-full lg:w-1/2 flex flex-col">
+		<div class="max-w-xl mx-auto w-full px-6 py-10 md:py-14 flex flex-col grow">
+			<!-- Logo / back link -->
+			<div class="mb-10 flex items-center justify-between">
+				<div class="flex items-center space-x-3">
+					<div class="w-10 h-10 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold">BA</div>
+					<span class="text-lg font-semibold text-slate-800 dark:text-slate-100">Ballet Academy</span>
+				</div>
+				<button type="button" id="goBack" class="text-sm text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 flex items-center space-x-1">
+					<span>&larr;</span><span>Back</span>
+				</button>
+			</div>
+
+			<div class="max-w-md">
+				<h1 class="text-2xl font-semibold text-slate-800 dark:text-slate-100 mb-2">Phone verification</h1>
+				<p class="text-sm text-slate-600 dark:text-slate-300 mb-6">This is to ensure that only you can access your account.</p>
+				<p class="text-sm text-slate-700 dark:text-slate-200 mb-6">Please verify your phone number (<span id="maskedPhone" class="font-mono">*******8580</span>) by entering the security code we just sent.</p>
+
+				<form id="verifyForm" class="space-y-5">
+					<div>
+						<label for="code" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Enter security code</label>
+						<div class="relative">
+							<input id="code" name="code" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" required
+										 placeholder="••••••" maxlength="6"
+										 class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 pr-12 tracking-widest text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+							<button type="button" id="toggleCode" aria-label="Show code" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">
+								<svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.036 12.322a1.012 1.012 0 010-.644C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.008 9.963 7.178.07.207.07.436 0 .643C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.008-9.964-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+							</button>
+						</div>
+						<p id="codeError" class="mt-2 text-xs text-rose-600 hidden">Enter the 6‑digit code.</p>
+					</div>
+
+					<div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+						<span id="resendInfo">You can re-send a new verification code after <span id="countdown">60</span>s</span>
+						<button type="button" id="resendBtn" class="hidden text-indigo-600 hover:text-indigo-700 font-medium">Resend code</button>
+					</div>
+
+					<button type="submit" class="w-full rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 transition">Submit</button>
+				</form>
+
+				<div class="mt-8 text-xs text-slate-500 dark:text-slate-400">Need help? <a href="#" class="text-indigo-600 hover:text-indigo-700">Contact support</a></div>
+			</div>
+			<div class="mt-auto pt-10 text-xs text-slate-400">© 2025 Ballet Academy</div>
+		</div>
+	</div>
+
+	<script>
+		// Back button behavior (fallback to history)
+		document.getElementById('goBack')?.addEventListener('click', () => {
+			if (history.length > 1) history.back();
+		});
+
+		// Masked phone handling from URL if provided
+		(function(){
+			const params = new URLSearchParams(location.search);
+			const mask = params.get('phone');
+			if (mask) document.getElementById('maskedPhone').textContent = mask;
+		})();
+
+		const codeInput = document.getElementById('code');
+		const toggleBtn = document.getElementById('toggleCode');
+		const eyeIcon = document.getElementById('eyeIcon');
+		const errorEl = document.getElementById('codeError');
+		const resendInfo = document.getElementById('resendInfo');
+		const countdownEl = document.getElementById('countdown');
+		const resendBtn = document.getElementById('resendBtn');
+
+		let showing = false;
+		toggleBtn.addEventListener('click', () => {
+			showing = !showing;
+			codeInput.type = showing ? 'text' : 'password';
+			toggleBtn.setAttribute('aria-label', showing ? 'Hide code' : 'Show code');
+		});
+
+		// Countdown logic
+		let remaining = 60;
+		const interval = setInterval(() => {
+			remaining--;
+			if (remaining <= 0) {
+				clearInterval(interval);
+				resendInfo.classList.add('hidden');
+				resendBtn.classList.remove('hidden');
+			} else {
+				countdownEl.textContent = remaining;
+			}
+		}, 1000);
+
+		resendBtn.addEventListener('click', () => {
+			// Simulate resend
+			console.log('Resend verification code');
+			resendBtn.classList.add('hidden');
+			resendInfo.classList.remove('hidden');
+			remaining = 60;
+			countdownEl.textContent = remaining;
+			const newInterval = setInterval(() => {
+				remaining--;
+				if (remaining <= 0) {
+					clearInterval(newInterval);
+					resendInfo.classList.add('hidden');
+					resendBtn.classList.remove('hidden');
+				} else {
+					countdownEl.textContent = remaining;
+				}
+			}, 1000);
+		});
+
+		// Form submission
+		document.getElementById('verifyForm').addEventListener('submit', (e) => {
+			e.preventDefault();
+			const code = codeInput.value.trim();
+			if (code.length !== 6 || !/^[0-9]{6}$/.test(code)) {
+				errorEl.classList.remove('hidden');
+				codeInput.classList.add('border-rose-500','focus:ring-rose-500','focus:border-rose-500');
+				return;
+			}
+			errorEl.classList.add('hidden');
+			codeInput.classList.remove('border-rose-500','focus:ring-rose-500','focus:border-rose-500');
+			console.log('Submitted verification code:', code);
+			// Simulated success
+			const submitBtn = e.target.querySelector('button[type="submit"]');
+			const original = submitBtn.textContent;
+			submitBtn.textContent = 'Verifying…';
+			submitBtn.disabled = true;
+		setTimeout(() => {
+			submitBtn.textContent = original;
+			submitBtn.disabled = false;
+			// Check email from URL parameters to determine redirect
+			const params = new URLSearchParams(location.search);
+			const email = params.get('email');
+			if (email === 'counselor@ba.edu') {
+				window.location.href = 'appsMain.html';
+			} else {
+				window.location.href = 'apps.html';
+			}
+		}, 1000);
+		});
+	</script>
+</body>
+</html>
+

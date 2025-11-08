@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataVizU - Student Analytics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #6b46c1 0%, #805ad5 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        .hover-scale {
+            transition: transform 0.3s ease;
+        }
+        .hover-scale:hover {
+            transform: translateY(-5px);
+        }
+        .resource-button {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 50;
+            transition: transform 0.3s ease;
+        }
+        .resource-button:hover {
+            transform: scale(1.1);
+        }
+        .chat-window {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .message-counselor {
+            background-color: #f3f4f6;
+            border-radius: 1rem 1rem 1rem 0;
+        }
+        .message-assistant {
+            background-color: #e9d5ff;
+            border-radius: 1rem 1rem 0 1rem;
+        }
+        .resource-modal {
+            display: none;
+            position: fixed;
+            bottom: 6rem;
+            right: 2rem;
+            width: 400px;
+            max-height: 600px;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            z-index: 40;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .resource-modal.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+    <script>
+        // Function to get URL parameters
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+
+                // Update student name when page loads
+        window.onload = function() {
+            var studentName = getUrlParameter('student');
+            if (studentName) {
+                document.title = `${studentName}'s Dashboard - DataVizU`;
+                // Update any elements that should display the student name
+                const studentNameElements = document.querySelectorAll('.student-name');
+                studentNameElements.forEach(element => {
+                    element.textContent = studentName;
+                });
+                
+                // Update course grades, GPA, grade performance, attendance and rank based on student
+                updateCourseGrades(studentName);
+                updateStudentGPA(studentName);
+                updateGradePerformance(studentName);
+                updateAttendanceAndRank(studentName);
+            }
+        }
+        
+        // Student GPA data from priorityStudent.html
+        const studentGPAData = [
+            {"Name": "John Smith", "GPA": "1.8"},
+            {"Name": "Emily Johnson", "GPA": "2.6"},
+            {"Name": "Michael Brown", "GPA": "2.9"},
+            {"Name": "Sarah Davis", "GPA": "1.7"},
+            {"Name": "David Wilson", "GPA": "2.4"},
+            {"Name": "Jennifer Miller", "GPA": "2.7"},
+            {"Name": "Robert Taylor", "GPA": "1.5"},
+            {"Name": "Jessica Anderson", "GPA": "2.5"},
+            {"Name": "Christopher Martinez", "GPA": "2.8"},
+            {"Name": "Amanda Thomas", "GPA": "1.9"},
+            {"Name": "Daniel Jackson", "GPA": "2.6"},
+            {"Name": "Michelle White", "GPA": "2.9"},
+            {"Name": "Kevin Harris", "GPA": "1.6"},
+            {"Name": "Lisa Martin", "GPA": "2.4"},
+            {"Name": "Matthew Thompson", "GPA": "2.7"},
+            {"Name": "Stephanie Garcia", "GPA": "2.0"},
+            {"Name": "Andrew Robinson", "GPA": "2.5"},
+            {"Name": "Nicole Clark", "GPA": "2.8"},
+            {"Name": "Joshua Rodriguez", "GPA": "1.8"},
+            {"Name": "Elizabeth Lewis", "GPA": "2.6"}
+        ];
+        
+        // Student grades data with Week 1 performance
+        const studentGradesData = [
+            {"Name2":"John Smith","Math":"60%","History":"74%","English":"61%","IT":"64%","Chemistry":"76%","Art":"61%","Week1":60,"Week2":68.2,"Attendance":"62%","Absences":19,"Rank":"71%"},
+            {"Name2":"Emily Johnson","Math":"46%","History":"68%","English":"73%","IT":"61%","Chemistry":"77%","Art":"68%","Week1":46,"Week2":67.2,"Attendance":"58%","Absences":21,"Rank":"84%"},
+            {"Name2":"Michael Brown","Math":"32%","History":"46%","English":"49%","IT":"42%","Chemistry":"43%","Art":"62%","Week1":32,"Week2":73.7,"Attendance":"54%","Absences":23,"Rank":"92%"},
+            {"Name2":"Sarah Davis","Math":"37%","History":"75%","English":"78%","IT":"73%","Chemistry":"67%","Art":"82%","Week1":37,"Week2":74.0,"Attendance":"56%","Absences":22,"Rank":"88%"},
+            {"Name2":"David Wilson","Math":"65%","History":"76%","English":"74%","IT":"68%","Chemistry":"82%","Art":"74%","Week1":65,"Week2":68.3,"Attendance":"64%","Absences":18,"Rank":"68%"},
+            {"Name2":"Jennifer Miller","Math":"62%","History":"69%","English":"71%","IT":"69%","Chemistry":"83%","Art":"68%","Week1":62,"Week2":68.2,"Attendance":"63%","Absences":19,"Rank":"72%"},
+            {"Name2":"Robert Taylor","Math":"71%","History":"66%","English":"77%","IT":"84%","Chemistry":"78%","Art":"66%","Week1":71,"Week2":69.2,"Attendance":"52%","Absences":24,"Rank":"95%"},
+            {"Name2":"Jessica Anderson","Math":"44%","History":"69%","English":"69%","IT":"67%","Chemistry":"69%","Art":"51%","Week1":44,"Week2":70.5,"Attendance":"59%","Absences":20,"Rank":"81%"},
+            {"Name2":"Christopher Martinez","Math":"44%","History":"76%","English":"71%","IT":"82%","Chemistry":"62%","Art":"78%","Week1":44,"Week2":69.3,"Attendance":"57%","Absences":21,"Rank":"86%"},
+            {"Name2":"Amanda Thomas","Math":"64%","History":"59%","English":"43%","IT":"46%","Chemistry":"59%","Art":"56%","Week1":64,"Week2":73.3,"Attendance":"61%","Absences":19,"Rank":"74%"},
+            {"Name2":"Daniel Jackson","Math":"46%","History":"61%","English":"80%","IT":"77%","Chemistry":"60%","Art":"74%","Week1":46,"Week2":68.7,"Attendance":"58%","Absences":21,"Rank":"83%"},
+            {"Name2":"Michelle White","Math":"66%","History":"67%","English":"82%","IT":"65%","Chemistry":"60%","Art":"73%","Week1":66,"Week2":66.5,"Attendance":"65%","Absences":17,"Rank":"67%"},
+            {"Name2":"Kevin Harris","Math":"49%","History":"80%","English":"79%","IT":"65%","Chemistry":"69%","Art":"64%","Week1":49,"Week2":67.3,"Attendance":"55%","Absences":22,"Rank":"90%"},
+            {"Name2":"Lisa Martin","Math":"32%","History":"37%","English":"46%","IT":"42%","Chemistry":"64%","Art":"32%","Week1":32,"Week2":70.3,"Attendance":"60%","Absences":20,"Rank":"78%"},
+            {"Name2":"Matthew Thompson","Math":"47%","History":"43%","English":"30%","IT":"63%","Chemistry":"65%","Art":"47%","Week1":47,"Week2":70.7,"Attendance":"63%","Absences":18,"Rank":"73%"},
+            {"Name2":"Stephanie Garcia","Math":"49%","History":"66%","English":"41%","IT":"66%","Chemistry":"36%","Art":"69%","Week1":49,"Week2":64.8,"Attendance":"56%","Absences":22,"Rank":"87%"},
+            {"Name2":"Andrew Robinson","Math":"45%","History":"51%","English":"65%","IT":"34%","Chemistry":"35%","Art":"64%","Week1":45,"Week2":67.2,"Attendance":"59%","Absences":20,"Rank":"82%"},
+            {"Name2":"Nicole Clark","Math":"54%","History":"62%","English":"76%","IT":"81%","Chemistry":"74%","Art":"83%","Week1":54,"Week2":66.3,"Attendance":"62%","Absences":19,"Rank":"76%"},
+            {"Name2":"Joshua Rodriguez","Math":"30%","History":"60%","English":"69%","IT":"68%","Chemistry":"78%","Art":"59%","Week1":30,"Week2":72.0,"Attendance":"57%","Absences":21,"Rank":"85%"},
+            {"Name2":"Elizabeth Lewis","Math":"55%","History":"71%","English":"60%","IT":"62%","Chemistry":"75%","Art":"83%","Week1":55,"Week2":67.3,"Attendance":"60%","Absences":20,"Rank":"79%"}
+        ];
+        
+        function updateStudentGPA(studentName) {
+            // Find the student's GPA data
+            const studentData = studentGPAData.find(student => student.Name === studentName);
+            
+            if (studentData) {
+                // Update the GPA display
+                const gpaElement = document.getElementById('studentGPA');
+                if (gpaElement) {
+                    gpaElement.textContent = studentData.GPA;
+                }
+            }
+        }
+        
+        function updateCourseGrades(studentName) {
+            // Find the student's data
+            const studentData = studentGradesData.find(student => student.Name2 === studentName);
+            
+            if (studentData) {
+                // Update each course grade
+                const courseElements = document.querySelectorAll('[data-course]');
+                courseElements.forEach(element => {
+                    const courseName = element.getAttribute('data-course');
+                    if (studentData[courseName]) {
+                        element.textContent = studentData[courseName];
+                    }
+                });
+            }
+        }
+        
+        function updateAttendanceAndRank(studentName) {
+            // Find the student's data
+            const studentData = studentGradesData.find(student => student.Name2 === studentName);
+            
+            if (studentData) {
+                // Update attendance
+                const attendanceElement = document.getElementById('studentAttendance');
+                if (attendanceElement && studentData.Attendance) {
+                    attendanceElement.textContent = studentData.Attendance;
+                }
+                
+                // Update absences
+                const absencesElement = document.getElementById('studentAbsences');
+                if (absencesElement && studentData.Absences) {
+                    absencesElement.textContent = studentData.Absences;
+                }
+                
+                // Update rank
+                const rankElement = document.getElementById('studentRank');
+                if (rankElement && studentData.Rank) {
+                    rankElement.textContent = studentData.Rank;
+                }
+            }
+        }
+        
+        // Teacher Reports Data with expanded feedback
+        const teacherReportsData = [
+            {
+                "Name": "John Smith",
+                "Report1": "John demonstrates exceptional academic excellence across all subject areas. His analytical thinking in mathematics and sciences is particularly impressive, consistently achieving top marks in complex problem-solving tasks. He shows outstanding leadership qualities during group projects and actively engages in classroom discussions with thoughtful contributions. His work ethic is exemplary, always submitting assignments ahead of deadlines with meticulous attention to detail. Teachers note his natural curiosity and genuine enthusiasm for learning, which serves as an inspiration to his peers.",
+                "Report2": "John continues to maintain his stellar academic performance throughout the semester. His ability to grasp advanced concepts quickly and apply them creatively sets him apart as a scholar. In addition to his academic achievements, he demonstrates excellent time management skills and maintains perfect attendance. His participation in extracurricular activities while maintaining top grades shows remarkable balance and dedication to holistic development.",
+                "Badge1": "Excellent",
+                "Badge2": "Outstanding"
+            },
+            {
+                "Name": "Emily Johnson",
+                "Report1": "Emily is a dedicated and hardworking student who consistently produces high-quality work across all subjects. Her strengths lie particularly in language arts and social studies, where her critical thinking and written expression skills shine. She actively participates in class discussions and demonstrates a genuine interest in learning. Emily shows excellent collaboration skills during group activities and is always willing to help her classmates. Her positive attitude and strong work ethic contribute to a productive classroom environment.",
+                "Report2": "Emily has maintained her excellent academic standing and continues to show impressive growth in her weaker areas, particularly mathematics and sciences. Her determination to improve is evident in her proactive approach to seeking help and additional practice. She has developed better organizational skills this term and consistently meets all deadlines. Her teachers appreciate her respectful demeanor and consistent effort to excel in all areas of study.",
+                "Badge1": "Excellent",
+                "Badge2": "Great Progress"
+            },
+            {
+                "Name": "Michael Brown",
+                "Report1": "Michael shows potential but needs to focus more attention on Information Technology and History where his performance has been inconsistent. While he demonstrates strong abilities in practical and hands-on subjects, he struggles with theoretical concepts and written assignments in these areas. His attendance has been satisfactory, but greater engagement during lectures would benefit his understanding. Michael would benefit from developing better study habits and dedicating more time to subjects he finds challenging. Additional tutoring or after-school study sessions are recommended.",
+                "Report2": "Michael has shown remarkable improvement this term, particularly in the areas previously identified as concerns. His grades in Information Technology have risen significantly, demonstrating his commitment to addressing his academic challenges. He has become more active in class participation and shows better preparation for lessons. His History performance has also improved, with more thorough research evident in his recent assignments. Teachers commend his positive attitude shift and increased dedication to his studies. With continued effort, Michael is on track to achieve consistent success across all subjects.",
+                "Badge1": "Needs Improvement",
+                "Badge2": "Improving"
+            },
+            {
+                "Name": "Sarah Davis",
+                "Report1": "Sarah is an exemplary student who excels in all academic areas with remarkable consistency. Her performance in sciences and mathematics is particularly noteworthy, often going beyond curriculum requirements to explore topics in greater depth. She demonstrates exceptional critical thinking skills and approaches problems with creativity and logical reasoning. Sarah is a natural leader who mentors struggling classmates during study groups. Her organizational skills are outstanding, and she manages her time effectively across academics, sports, and community service activities.",
+                "Report2": "Sarah maintains her position as one of the top-performing students in her cohort. Her recent projects showcase advanced research skills and sophisticated analysis well beyond grade level expectations. Teachers appreciate her intellectual curiosity and mature approach to learning. She consistently demonstrates academic integrity and serves as an excellent role model for her peers. Her ability to balance high achievement with helping others reflects strong character development alongside academic excellence.",
+                "Badge1": "Excellent",
+                "Badge2": "Outstanding"
+            },
+            {
+                "Name": "David Wilson",
+                "Report1": "David is a strong student overall with particular aptitude in humanities subjects. However, his Information Technology performance requires attention and improvement. While he grasps basic concepts, he struggles with more advanced technical applications and programming logic. His written work in other subjects is excellent, showing sophisticated vocabulary and clear argumentation. David would benefit from additional practice with IT concepts and perhaps peer tutoring sessions. Encouraging him to approach technology subjects with the same confidence he shows in his strong areas would be beneficial.",
+                "Report2": "David continues to demonstrate solid academic performance across most subjects. While Information Technology remains an area where improvement is needed, he has shown willingness to seek additional support and practice. His strengths in language arts and social studies remain exceptional, with particularly impressive analytical essays submitted this term. Teachers encourage David to maintain his strong work ethic and continue working on developing his technical skills through consistent practice and engagement.",
+                "Badge1": "Good Progress",
+                "Badge2": "Good Progress"
+            },
+            {
+                "Name": "Jennifer Miller",
+                "Report1": "Jennifer consistently performs at a high level across all her classes, demonstrating well-rounded academic abilities. Her strengths span both sciences and humanities, showing versatility in her learning approach. She participates actively in class discussions with thoughtful insights and asks perceptive questions that deepen classroom discourse. Jennifer's assignments are always completed thoroughly and submitted on time, reflecting strong organizational skills and academic discipline. Her collaborative spirit during group work enhances the learning experience for all team members.",
+                "Report2": "Jennifer maintains her excellent academic standing with consistent high achievement across all subjects. Her recent project work demonstrates sophisticated understanding and application of advanced concepts. She shows particular growth in analytical writing and scientific methodology. Teachers commend her reliability, positive attitude, and genuine engagement with learning material. Her ability to balance academic excellence with extracurricular involvement demonstrates strong time management and prioritization skills.",
+                "Badge1": "Excellent",
+                "Badge2": "Excellent"
+            },
+            {
+                "Name": "Robert Taylor",
+                "Report1": "Robert is a capable student who performs satisfactorily across most subjects. He shows consistent effort and maintains acceptable grades, though there is room for growth in reaching his full potential. His strengths include practical applications and hands-on learning activities. Robert participates adequately in class but could benefit from more active engagement and questioning during lessons. His attendance is regular and he completes assignments on time, though the depth of analysis could be enhanced. With increased confidence and deeper engagement with material, Robert could elevate his performance significantly.",
+                "Report2": "Robert continues to demonstrate steady academic progress with consistent effort across all subjects. While not excelling in any particular area, he maintains satisfactory performance and shows willingness to learn. His recent improvements in class participation indicate growing confidence. Teachers encourage Robert to push himself beyond minimum requirements and explore topics more deeply to achieve higher levels of understanding and academic success.",
+                "Badge1": "Good",
+                "Badge2": "Satisfactory"
+            }
+        ];
+        
+        // Function to update Teacher's Reports based on student
+        function updateTeacherReports(studentName) {
+            const reportData = teacherReportsData.find(student => student.Name === studentName);
+            
+            if (reportData) {
+                // Update Report 1
+                const report1Text = document.getElementById('report1-text');
+                const report1Badge = document.getElementById('report1-badge');
+                if (report1Text) report1Text.textContent = reportData.Report1;
+                if (report1Badge) {
+                    report1Badge.textContent = reportData.Badge1;
+                    // Update badge color based on status
+                    report1Badge.className = 'px-3 py-1 text-sm rounded-full ' + getBadgeColor(reportData.Badge1);
+                }
+                
+                // Update Report 2
+                const report2Text = document.getElementById('report2-text');
+                const report2Badge = document.getElementById('report2-badge');
+                if (report2Text) report2Text.textContent = reportData.Report2;
+                if (report2Badge) {
+                    report2Badge.textContent = reportData.Badge2;
+                    report2Badge.className = 'px-3 py-1 text-sm rounded-full ' + getBadgeColor(reportData.Badge2);
+                }
+                
+                // Hide third report since we only have 2 reports per student
+                const report3Text = document.getElementById('report3-text');
+                if (report3Text && report3Text.parentElement && report3Text.parentElement.parentElement) {
+                    report3Text.parentElement.parentElement.style.display = 'none';
+                }
+            }
+        }
+        
+        // Function to determine badge color based on status
+        function getBadgeColor(status) {
+            switch(status) {
+                case 'Excellent':
+                case 'Outstanding':
+                    return 'bg-green-100 text-green-700';
+                case 'Good Progress':
+                case 'Great Progress':
+                case 'Good':
+                    return 'bg-blue-100 text-blue-700';
+                case 'Improving':
+                case 'Satisfactory':
+                    return 'bg-yellow-100 text-yellow-700';
+                case 'Needs Improvement':
+                    return 'bg-orange-100 text-orange-700';
+                default:
+                    return 'bg-gray-100 text-gray-700';
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Navigation -->
+    <!-- Navigation for all HTML files -->
+<nav class="gradient-bg text-white shadow-lg">
+    <div class="container mx-auto px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <i data-feather="bar-chart-2" class="w-8 h-8"></i>
+                <a href="index.html" class="text-xl font-bold hover:text-gray-200">ConnectEd</a>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <i data-feather="bell" class="w-6 h-6"></i>
+                    <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                </div>
+                <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center">
+                    <i data-feather="user" class="text-purple-700"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800"><span class="student-name">Student</span>'s Analytics Dashboard</h1>
+                <p class="text-gray-600">Welcome back, Alex! Here's your academic performance overview.</p>
+            </div>
+            <div class="mt-4 md:mt-0 flex space-x-3">
+                <button class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                    <i data-feather="calendar" class="inline mr-2"></i>This Semester
+                </button>
+                <button id="exportReportBtn" class="px-4 py-2 gradient-bg text-white rounded-lg hover:opacity-90">
+                    <i data-feather="download" class="inline mr-2"></i>Export Report
+                </button>
+            </div>
+        </div>
+
+        
+        <!-- Student Analysis Summary Section -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-8 hover-scale">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800">Student Analysis Summary</h2>
+                <button onclick="generateStudentAnalysisSummary()" class="text-purple-600 hover:text-purple-800" title="Regenerate Analysis">
+                    <i data-feather="refresh-cw" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div id="studentAnalysisSummaryText" class="text-gray-700 text-base leading-relaxed">
+                Generating analysis...
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-md p-6 hover-scale">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500">GPA</p>
+                        <h3 id="studentGPA" class="text-3xl font-bold text-gray-800">3.72</h3>
+                        <p class="text-green-500 text-sm mt-1">
+                            <i data-feather="trending-up" class="inline mr-1"></i> +0.12 from last term
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
+                        <i data-feather="award" class="text-purple-600"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md p-6 hover-scale">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500">Courses</p>
+                        <h3 class="text-3xl font-bold text-gray-800">6</h3>
+                        <p class="text-gray-500 text-sm mt-1">Current enrollment</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                        <i data-feather="book" class="text-blue-600"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md p-6 hover-scale">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500">Attendance</p>
+                        <h3 id="studentAttendance" class="text-3xl font-bold text-gray-800">94%</h3>
+                        <p class="text-yellow-500 text-sm mt-1">
+                            <i data-feather="alert-triangle" class="inline mr-1"></i> <span id="studentAbsences">3</span> absences
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                        <i data-feather="clock" class="text-green-600"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md p-6 hover-scale">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500">Rank</p>
+                        <h3 id="studentRank" class="text-3xl font-bold text-gray-800">Top 15%</h3>
+                        <p class="text-gray-500 text-sm mt-1">Among 35 students</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                        <i data-feather="bar-chart-2" class="text-red-600"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Teacher's Reports -->
+            <div class="bg-white rounded-xl shadow-md p-6 hover-scale">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-gray-800">Teacher's Reports</h2>
+                    <button class="text-purple-600 hover:text-purple-800">
+                        <i data-feather="file-text" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <div class="p-4 border border-gray-100 rounded-lg hover:bg-gray-50">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-4">
+                                    <i data-feather="user" class="text-green-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">Prof. Johnson</h4>
+                                    <p class="text-sm text-gray-500">November 5, 2025</p>
+                                </div>
+                            </div>
+                            <span id="report1-badge" class="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full">Excellent</span>
+                        </div>
+                        <p id="report1-text" class="text-gray-600 text-sm">
+                            Shows exceptional analytical skills in data science projects. Consistently contributes meaningful insights during class discussions and demonstrates strong problem-solving abilities. Leadership in group projects is particularly noteworthy.
+                        </p>
+                    </div>
+                    
+                    <div class="p-4 border border-gray-100 rounded-lg hover:bg-gray-50">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                                    <i data-feather="user" class="text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">Prof. Williams</h4>
+                                    <p class="text-sm text-gray-500">October 28, 2025</p>
+                                </div>
+                            </div>
+                            <span id="report2-badge" class="px-3 py-1 bg-yellow-100 text-yellow-700 text-sm rounded-full">Good Progress</span>
+                        </div>
+                        <p id="report2-text" class="text-gray-600 text-sm">
+                            Making steady progress in web development skills. Has shown improvement in frontend design principles and responsive layouts. Could benefit from more practice with advanced JavaScript concepts.
+                        </p>
+                    </div>
+                    
+                    <div class="p-4 border border-gray-100 rounded-lg hover:bg-gray-50">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-4">
+                                    <i data-feather="user" class="text-purple-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">Prof. Smith</h4>
+                                    <p class="text-sm text-gray-500">October 15, 2025</p>
+                                </div>
+                            </div>
+                            <span id="report3-badge" class="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full">Improving</span>
+                        </div>
+                        <p id="report3-text" class="text-gray-600 text-sm">
+                            Shows dedication in database systems course. Recent project work demonstrates better understanding of normalization concepts. Participation in class has increased, and SQL query optimization skills are developing well.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student Progress Overview -->
+            <div class="bg-white rounded-xl shadow-md p-6 hover-scale">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-gray-800">Student Progress Overview</h2>
+                    <div class="flex space-x-2">
+                        <button class="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded-full">Current Term</button>
+                    </div>
+                </div>
+                <div class="h-[500px]">
+                    <canvas id="progressChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+            <!-- Grade Performance Indicator -->
+            <div class="bg-white rounded-xl shadow-md p-6 hover-scale mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-gray-800">Grade Performance Indicator</h2>
+                </div>
+                <div class="h-[300px]">
+                    <canvas id="gradePerformanceChart"></canvas>
+                </div>
+                <!-- Color Legend -->
+                <div class="flex justify-center items-center space-x-6 mt-4 text-sm">
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-red-500 rounded mr-2"></div>
+                        <span class="text-gray-600">0-49% (Failing)</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 rounded mr-2" style="background-color: #fb923c;"></div>
+                        <span class="text-gray-600">50-69% (Below Target)</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-blue-500 rounded mr-2"></div>
+                        <span class="text-gray-600">70-84% (On Track)</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-green-500 rounded mr-2"></div>
+                        <span class="text-gray-600">KPI Threshold (70%)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Courses & Assignments -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Current Courses -->
+            <div class="bg-white rounded-xl shadow-md p-6 hover-scale">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-gray-800">Current Courses</h2>
+                    <button class="text-purple-600 hover:text-purple-800">
+                        <i data-feather="plus" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex items-center p-3 border border-gray-100 rounded-lg hover:bg-gray-50">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                            <i data-feather="cpu" class="text-blue-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-medium">Math</h4>
+                            <p class="text-sm text-gray-500">Prof. Johnson</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-bold" data-course="Math">A-</span>
+                            <p class="text-xs text-gray-500">Current</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center p-3 border border-gray-100 rounded-lg hover:bg-gray-50">
+                        <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-4">
+                            <i data-feather="database" class="text-green-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-medium">History</h4>
+                            <p class="text-sm text-gray-500">Prof. Smith</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-bold" data-course="History">B+</span>
+                            <p class="text-xs text-gray-500">Current</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center p-3 border border-gray-100 rounded-lg hover:bg-gray-50">
+                        <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-4">
+                            <i data-feather="code" class="text-purple-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-medium">English</h4>
+                            <p class="text-sm text-gray-500">Prof. Williams</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-bold" data-course="English">A</span>
+                            <p class="text-xs text-gray-500">Current</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center p-3 border border-gray-100 rounded-lg hover:bg-gray-50">
+                        <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-4">
+                            <i data-feather="monitor" class="text-indigo-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-medium">IT</h4>
+                            <p class="text-sm text-gray-500">Prof. Anderson</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-bold" data-course="IT">B+</span>
+                            <p class="text-xs text-gray-500">Current</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center p-3 border border-gray-100 rounded-lg hover:bg-gray-50">
+                        <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center mr-4">
+                            <i data-feather="activity" class="text-red-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-medium">Chemistry</h4>
+                            <p class="text-sm text-gray-500">Prof. Davis</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-bold" data-course="Chemistry">B</span>
+                            <p class="text-xs text-gray-500">Current</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center p-3 border border-gray-100 rounded-lg hover:bg-gray-50">
+                        <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center mr-4">
+                            <i data-feather="edit" class="text-yellow-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-medium">Art</h4>
+                            <p class="text-sm text-gray-500">Prof. Brown</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-bold" data-course="Art">A+</span>
+                            <p class="text-xs text-gray-500">Current</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance Calendar -->
+            <div class="bg-white rounded-xl shadow-md p-6 hover-scale">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-gray-800">Attendance Calendar</h2>
+                </div>
+                <div class="space-y-3">
+                    <!-- September -->
+                    <div>
+                        <h3 class="text-sm text-gray-700 font-medium mb-2">September</h3>
+                        <div class="grid grid-cols-5 gap-1">
+                            <div class="text-xs text-gray-400 text-center">M</div>
+                            <div class="text-xs text-gray-400 text-center">T</div>
+                            <div class="text-xs text-gray-400 text-center">W</div>
+                            <div class="text-xs text-gray-400 text-center">T</div>
+                            <div class="text-xs text-gray-400 text-center">F</div>
+                            <!-- Calendar squares -->
+                            <div class="w-6 h-6 bg-gray-100 rounded"></div>
+                            <div class="w-6 h-6 bg-gray-100 rounded"></div>
+                            <div class="w-6 h-6 bg-gray-100 rounded relative">
+                                <span class="absolute bottom-0.5 right-0.5 w-1 h-1 bg-blue-500 rounded-full"></span>
+                            </div>
+                            <div class="w-6 h-6 bg-gray-100 rounded"></div>
+                            <div class="w-6 h-6 bg-gray-100 rounded"></div>
+                            <!-- Week 2 -->
+                            <div class="w-6 h-6 bg-gray-100 rounded relative">
+                                <span class="absolute bottom-0.5 right-0.5 w-1 h-1 bg-red-500 rounded-full"></span>
+                                <span class="absolute bottom-0.5 right-2 w-1 h-1 bg-red-500 rounded-full"></span>
+                            </div>
+                            <div class="w-6 h-6 bg-gray-100 rounded"></div>
+                            <div class="w-6 h-6 bg-gray-100 rounded"></div>
+                            <div class="w-6 h-6 bg-gray-100 rounded"></div>
+                            <div class="w-6 h-6 bg-gray-100 rounded"></div>
+                        </div>
+                    </div>
+
+                    <!-- October -->
+                    <div>
+                        <h3 class="text-sm text-gray-700 font-medium mb-2">October</h3>
+                        <div class="grid grid-cols-5 gap-1">
+                            <div class="text-xs text-gray-400 text-center">M</div>
+                            <div class="text-xs text-gray-400 text-center">T</div>
+                            <div class="text-xs text-gray-400 text-center">W</div>
+                            <div class="text-xs text-gray-400 text-center">T</div>
+                            <div class="text-xs text-gray-400 text-center">F</div>
+                            <!-- Calendar squares -->
+                            <div class="w-6 h-6 bg-gray-100 rounded"></div>
+                            <div class="w-6 h-6 bg-gray-100 rounded relative">
+                                <span class="absolute bottom-0.5 right-0.5 w-1 h-1 bg-blue-500 rounded-full"></span>
+                            </div>
+                            <div class="w-6 h-6 bg-red-200 rounded"></div>
+                            <div class="w-6 h-6 bg-red-200 rounded"></div>
+                            <div class="w-6 h-6 bg-gray-100 rounded"></div>
+                            <!-- Week 2 -->
+                            <div class="w-6 h-6 bg-gray-100 rounded"></div>
+                            <div class="w-6 h-6 bg-red-200 rounded"></div>
+                            <div class="w-6 h-6 bg-red-200 rounded"></div>
+                            <div class="w-6 h-6 bg-red-200 rounded"></div>
+                            <div class="w-6 h-6 bg-red-200 rounded relative">
+                                <span class="absolute bottom-0.5 right-0.5 w-1 h-1 bg-red-500 rounded-full"></span>
+                                <span class="absolute bottom-0.5 right-2 w-1 h-1 bg-red-500 rounded-full"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        
+        
+    </main>
+
+    <!-- Resource Button and Modal -->
+    <button onclick="toggleResourceModal()" class="resource-button p-4 bg-white rounded-full text-purple-600 shadow-lg hover:shadow-xl">
+        <i data-feather="life-buoy" class="w-6 h-6"></i>
+    </button>
+
+    <!-- Resource Modal -->
+    <div id="resourceModal" class="resource-modal">
+        <div class="p-4 gradient-bg text-white rounded-t-lg">
+            <div class="flex justify-between items-center">
+                <h2 class="text-lg font-semibold">Student Resource Finder</h2>
+                <button onclick="toggleResourceModal()" class="hover:text-gray-200">
+                    <i data-feather="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <p class="text-sm opacity-90 mt-1">Describe the student's needs for personalized recommendations</p>
+        </div>
+
+        <!-- Chat Interface -->
+        <div class="chat-window p-4 bg-white">
+            <div id="chatMessages" class="space-y-4 mb-4">
+                <div class="message-assistant p-3">
+                    <p class="text-sm">Hello! I'm here to help find resources for your student. Please describe their challenges or needs, and I'll suggest relevant grants and support opportunities.</p>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="border-t pt-4">
+                <div class="flex space-x-2">
+                    <input type="text" id="messageInput" 
+                        placeholder="Describe student's needs..." 
+                        class="flex-1 p-2 border rounded-lg focus:outline-none focus:border-purple-500">
+                    <button onclick="sendMessage()" class="px-4 py-2 gradient-bg text-white rounded-lg hover:opacity-90">
+                        <i data-feather="send" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="gradient-bg text-white py-8 mt-12">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <i data-feather="bar-chart-2" class="w-6 h-6"></i>
+                        <span class="text-xl font-bold">ConnectEd</span>
+                    </div>
+                    <p class="mt-2 text-sm opacity-80">Cosmopolitan University Student Analytics Platform</p>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="privacy.html" class="hover:text-gray-200">Privacy</a>
+                    <a href="terms.html" class="hover:text-gray-200">Terms</a>
+                    <a href="help.html" class="hover:text-gray-200">Help Center</a>
+</div>
+            </div>
+            <div class="border-t border-white border-opacity-20 mt-8 pt-8 text-sm text-center opacity-70">
+                © 2025 ConnectEd. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+
+        // Initialize Feather Icons
+        feather.replace();
+
+        // Student Analysis Summary logic - generate on load
+        async function generateStudentAnalysisSummary() {
+            const summaryText = document.getElementById('studentAnalysisSummaryText');
+            if (summaryText) summaryText.textContent = 'Generating summary...';
+
+            // Get student name
+            const studentName = getUrlParameter('student');
+            // GPA
+            let gpa = '';
+            const gpaData = studentGPAData.find(s => s.Name === studentName);
+            if (gpaData) gpa = gpaData.GPA;
+            // Grade average (average of Week2 or all courses)
+            let gradeAvg = '';
+            const gradesData = studentGradesData.find(s => s.Name2 === studentName);
+            if (gradesData) {
+                // Average of Week2 and all course grades (as numbers)
+                const courseKeys = ['Math','History','English','IT','Chemistry','Art'];
+                let sum = 0, count = 0;
+                courseKeys.forEach(k => {
+                    if (gradesData[k] && gradesData[k].endsWith('%')) {
+                        sum += parseFloat(gradesData[k]);
+                        count++;
+                    }
+                });
+                if (count > 0) gradeAvg = (sum/count).toFixed(1) + '%';
+                else if (gradesData.Week2) gradeAvg = gradesData.Week2 + '%';
+            }
+            // Aspiration (optional, could be from another source or left blank)
+            let aspiration = '';
+            // Try to get from a field or leave blank
+            // Teacher report
+            let teacherReport = '';
+            const reportData = teacherReportsData.find(s => s.Name === studentName);
+            if (reportData) {
+                teacherReport = (reportData.Report1 || '') + '\n' + (reportData.Report2 || '');
+            }
+
+            // Compose context for chatbot
+            const context = `Student Name: ${studentName}\nGPA: ${gpa}\nGrade Average: ${gradeAvg}\nAspiration: ${aspiration}\nTeacher Report: ${teacherReport}`;
+
+            try {
+                const response = await fetch('http://localhost:3000/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: `Provide a concise, student-friendly analysis summary for this particular student based on the context. Highlight strengths, concerns, and actionable recommendations.\n\n${context}. Keep it straight to the point and under 100 words. Do not start with "Hello! I'm here to help find resources for your student. Please describe their challenges or needs, and I'll suggest relevant grants and support opportunities."`,
+                        sessionId: sessionId
+                    })
+                });
+                if (!response.ok) throw new Error('Failed to get response from chatbot');
+                const data = await response.json();
+                summaryText.innerHTML = data.response.replace(/\n/g, '<br>');
+            } catch (err) {
+                summaryText.textContent = 'Could not generate summary. Please ensure chatbot.js is running.';
+            }
+        }
+
+        // Call on load (after DOM and studentName is set)
+        window.addEventListener('load', function() {
+            setTimeout(generateStudentAnalysisSummary, 200); // slight delay to ensure studentName is set
+        });
+
+        function toggleResourceModal() {
+            const modal = document.getElementById('resourceModal');
+            modal.classList.toggle('active');
+            if (modal.classList.contains('active')) {
+                document.getElementById('messageInput').focus();
+            }
+        }
+
+        function addMessage(content, isCounselor = true) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = isCounselor ? 'message-counselor p-3' : 'message-assistant p-3';
+            messageDiv.innerHTML = `<p class="text-sm">${content.replace(/\n/g, '<br>')}</p>`;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Generate a unique session ID for this page session
+        const sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                // Add counselor's message
+                addMessage(message, true);
+                
+                // Clear input immediately for better UX
+                input.value = '';
+                
+                // Disable input while waiting for response
+                input.disabled = true;
+                
+                try {
+                    // Call chatbot.js API
+                    const response = await fetch('http://localhost:3000/api/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: message,
+                            sessionId: sessionId
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to get response from chatbot');
+                    }
+
+                    const data = await response.json();
+                    addMessage(data.response, false);
+                } catch (error) {
+                    console.error('Error connecting to chatbot:', error);
+                    addMessage('Sorry, I\'m having trouble connecting to the resource system. Please make sure the chatbot server is running (node chatbot.js) or try again later.', false);
+                } finally {
+                    // Re-enable input
+                    input.disabled = false;
+                    input.focus();
+                }
+            }
+        }
+
+        // Allow Enter key to send message
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        // Initialize Vanta.js background
+        VANTA.NET({
+            el: "body",
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            color: 0x805ad5,
+            backgroundColor: 0xf8fafc,
+            points: 10.00,
+            maxDistance: 20.00,
+            spacing: 15.00
+        });
+
+        // Student Progress Overview Chart
+        const progressCtx = document.getElementById('progressChart').getContext('2d');
+        const progressChart = new Chart(progressCtx, {
+            type: 'radar',
+            data: {
+                labels: [
+                    'Academic Performance',
+                    'Class Participation',
+                    'Assignment Completion',
+                    'Attendance Rate',
+                    'Study Group Engagement',
+                    'Extra Credit Work'
+                ],
+                datasets: [{
+                    label: 'Current Progress',
+                    data: [85, 75, 90, 94, 70, 80],
+                    fill: true,
+                    backgroundColor: 'rgba(128, 90, 213, 0.2)',
+                    borderColor: '#805ad5',
+                    pointBackgroundColor: '#805ad5',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#805ad5'
+                }, {
+                    label: 'Class Average',
+                    data: [70, 65, 75, 80, 60, 65],
+                    fill: true,
+                    backgroundColor: 'rgba(160, 174, 192, 0.2)',
+                    borderColor: '#a0aec0',
+                    pointBackgroundColor: '#a0aec0',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#a0aec0'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    r: {
+                        angleLines: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        },
+                        pointLabels: {
+                            color: '#4a5568',
+                            font: {
+                                size: 11
+                            }
+                        },
+                        ticks: {
+                            display: false,
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Grade Performance Indicator - Horizontal Bar Chart
+        const gradeCtx = document.getElementById('gradePerformanceChart').getContext('2d');
+        
+        // Function to determine bar color based on score
+        function getBarColor(score, isKPI) {
+            if (isKPI) return '#22c55e'; // Green for KPI
+            if (score < 50) return '#ef4444'; // Red
+            if (score < 70) return '#fb923c'; // Soft orange
+            return '#3b82f6'; // Blue
+        }
+
+        // Initialize with default data
+        let weeklyGrades = [
+            { label: 'Week 1', score: 45 },
+            { label: 'Week 2', score: 50 },
+            { label: 'TCAP', score: 70 }
+        ];
+
+        // Create color array for each bar
+        let barColors = weeklyGrades.map((item, index) => 
+            getBarColor(item.score, index === weeklyGrades.length - 1)
+        );
+
+        const gradePerformanceChart = new Chart(gradeCtx, {
+            type: 'bar',
+            data: {
+                labels: weeklyGrades.map(w => w.label),
+                datasets: [{
+                    label: 'Performance (%)',
+                    data: weeklyGrades.map(w => w.score),
+                    backgroundColor: barColors,
+                    borderColor: barColors,
+                    borderWidth: 1,
+                    barThickness: 40
+                }]
+            },
+            options: {
+                indexAxis: 'y', // Horizontal bars
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            },
+                            color: '#4b5563',
+                            stepSize: 10
+                        },
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)'
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: '#4b5563',
+                            font: {
+                                size: 12,
+                                weight: '500'
+                            }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.parsed.x + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Function to update grade performance chart based on student
+        function updateGradePerformance(studentName) {
+            const studentData = studentGradesData.find(student => student.Name2 === studentName);
+            
+            if (studentData) {
+                // Update Week 1 and Week 2 scores with student's data
+                if (studentData.Week1) {
+                    weeklyGrades[0].score = studentData.Week1;
+                }
+                if (studentData.Week2) {
+                    weeklyGrades[1].score = studentData.Week2;
+                }
+                
+                // Recalculate colors
+                barColors = weeklyGrades.map((item, index) => 
+                    getBarColor(item.score, index === weeklyGrades.length - 1)
+                );
+                
+                // Update chart
+                gradePerformanceChart.data.datasets[0].data = weeklyGrades.map(w => w.score);
+                gradePerformanceChart.data.datasets[0].backgroundColor = barColors;
+                gradePerformanceChart.data.datasets[0].borderColor = barColors;
+                gradePerformanceChart.update();
+            }
+        }
+
+        // Export Report to Excel
+        document.getElementById('exportReportBtn').addEventListener('click', function() {
+            // Get student name from the page
+            const studentNameElement = document.querySelector('.student-name');
+            const studentName = studentNameElement ? studentNameElement.textContent : 'Student';
+            
+            // Create workbook
+            const wb = XLSX.utils.book_new();
+            
+            // Sheet 1: Overview
+            const overviewData = [
+                ['Student Performance Report'],
+                ['Student Name:', studentName],
+                ['Generated:', new Date().toLocaleDateString()],
+                [],
+                ['Performance Metrics'],
+                ['Metric', 'Value'],
+                ['GPA', '3.72'],
+                ['Study Hours', '142 hrs'],
+                ['Assignments', '28'],
+                ['Attendance', '94%']
+            ];
+            const ws1 = XLSX.utils.aoa_to_sheet(overviewData);
+            XLSX.utils.book_append_sheet(wb, ws1, 'Overview');
+            
+            // Sheet 2: Current Courses
+            const coursesData = [
+                ['Current Courses'],
+                [],
+                ['Course Name', 'Grade', 'Credits', 'Status'],
+                ['Data Science 401', 'A', '4', 'In Progress'],
+                ['Database Systems', 'B+', '3', 'In Progress'],
+                ['Web Development', 'A-', '3', 'In Progress'],
+                ['AI Research Lab', 'A', '2', 'In Progress']
+            ];
+            const ws2 = XLSX.utils.aoa_to_sheet(coursesData);
+            XLSX.utils.book_append_sheet(wb, ws2, 'Courses');
+            
+            // Sheet 3: Weekly Performance
+            const performanceData = [
+                ['Weekly Grade Performance'],
+                [],
+                ['Week', 'Score (%)'],
+                ['Week 1', '45'],
+                ['Week 2', '50'],
+                [],
+                ['KPI Threshold', '70']
+            ];
+            const ws3 = XLSX.utils.aoa_to_sheet(performanceData);
+            XLSX.utils.book_append_sheet(wb, ws3, 'Weekly Performance');
+            
+            // Sheet 4: Assignments
+            const assignmentsData = [
+                ['Upcoming Assignments'],
+                [],
+                ['Assignment', 'Course', 'Due Date', 'Status'],
+                ['Final Project Proposal', 'Data Science 401', 'Nov 15, 2024', 'Pending'],
+                ['Database Optimization', 'Database Systems', 'Nov 18, 2024', 'In Progress'],
+                ['Portfolio Website', 'Web Development', 'Nov 22, 2024', 'Not Started'],
+                ['Research Paper Draft', 'AI Research Lab', 'Nov 25, 2024', 'Pending']
+            ];
+            const ws4 = XLSX.utils.aoa_to_sheet(assignmentsData);
+            XLSX.utils.book_append_sheet(wb, ws4, 'Assignments');
+            
+            // Sheet 5: Progress Overview
+            const progressData = [
+                ['Student Progress Overview'],
+                [],
+                ['Subject', 'Score'],
+                ['Mathematics', '85'],
+                ['Science', '78'],
+                ['English', '92'],
+                ['History', '88'],
+                ['Arts', '95'],
+                ['Physical Ed', '90']
+            ];
+            const ws5 = XLSX.utils.aoa_to_sheet(progressData);
+            XLSX.utils.book_append_sheet(wb, ws5, 'Progress Overview');
+            
+            // Generate and download file
+            const fileName = `${studentName}_report.xlsx`;
+            XLSX.writeFile(wb, fileName);
+        });
+
+        // Removed previous performance trend chart per request.
+    </script>
+</body>
+</html>

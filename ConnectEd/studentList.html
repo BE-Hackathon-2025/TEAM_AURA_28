@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System - ConnectEd</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #6b46c1 0%, #805ad5 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        .hover-scale {
+            transition: transform 0.3s ease;
+        }
+        .hover-scale:hover {
+            transform: translateY(-5px);
+        }
+        .table-header {
+            background-color: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .hover-row:hover {
+            background-color: #f8fafc;
+        }
+        .search-highlight {
+            background-color: #f1f5f9;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <i data-feather="bar-chart-2" class="w-8 h-8"></i>
+                    <a href="index.html" class="text-xl font-bold hover:text-gray-200">ConnectEd</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <i data-feather="bell" class="w-6 h-6"></i>
+                        <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </div>
+                    <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center">
+                        <i data-feather="user" class="text-purple-700"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl p-6 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-4xl font-bold text-gray-800">275</h3>
+                        <p class="text-gray-600 mt-1">Search Result</p>
+                    </div>
+                    <span class="text-gray-400">20%</span>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-4xl font-bold text-gray-800">1375</h3>
+                        <p class="text-gray-600 mt-1">Total Students</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-4xl font-bold text-gray-800">520</h3>
+                        <p class="text-gray-600 mt-1">Primary Students</p>
+                        <span class="text-xs text-gray-400">1-5</span>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-4xl font-bold text-gray-800">430</h3>
+                        <p class="text-gray-600 mt-1">Secondary Students</p>
+                        <span class="text-xs text-gray-400">6-9</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="flex justify-between items-center mb-6">
+            <div class="relative">
+                <i data-feather="search" class="absolute left-3 top-3 text-gray-400 w-5 h-5"></i>
+                <input type="text" id="studentSearch" placeholder="Search student by ID or Name" 
+                    class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-80 focus:outline-none focus:border-green-500">
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <select class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:border-green-500">
+                        <option>A</option>
+                    </select>
+                    <i data-feather="chevron-down" class="absolute right-2 top-3 w-4 h-4 text-gray-400"></i>
+                </div>
+                <button class="px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 flex items-center">
+                    <i data-feather="plus" class="w-5 h-5 mr-2"></i>
+                    Add Student
+                </button>
+            </div>
+        </div>
+
+        <!-- Students Table -->
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <table class="w-full">
+                <thead class="table-header">
+                    <tr>
+                        <th class="px-6 py-4 text-left">
+                            <input type="checkbox" class="rounded border-gray-300">
+                        </th>
+                        <th class="px-6 py-4 text-left font-semibold text-gray-600">Full Name</th>
+                        <th class="px-6 py-4 text-left font-semibold text-gray-600">Age</th>
+                        <th class="px-6 py-4 text-left font-semibold text-gray-600">Student ID</th>
+                        <th class="px-6 py-4 text-left font-semibold text-gray-600">Aspiration</th>
+                        <th class="px-6 py-4 text-left font-semibold text-gray-600">Parent's Phone</th>
+                        <th class="px-6 py-4 text-left font-semibold text-gray-600">Parent's Email</th>
+                        <th class="px-6 py-4 text-left font-semibold text-gray-600">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                                        <tr class="hover-row border-t border-gray-100 cursor-pointer" onclick="window.location.href='dashboard.html?student=John+Smith'">
+                        <td class="px-6 py-4"><input type="checkbox" class="rounded border-gray-300" onclick="event.stopPropagation()"></td>
+                        <td class="px-6 py-4 flex items-center">
+                            <img src="https://ui-avatars.com/api/?name=John+Smith" class="w-8 h-8 rounded-full mr-3">
+                            <span>John Smith</span>
+                        </td>
+                        <td class="px-6 py-4">13</td>
+                        <td class="px-6 py-4">STU2025001</td>
+                        <td class="px-6 py-4">Flight Attendant</td>
+                        <td class="px-6 py-4">(555) 123-4567</td>
+                        <td class="px-6 py-4">john.smith@ba.edu</td>
+                        <td class="px-6 py-4">
+                            <button class="text-green-700 hover:text-green-800" onclick="event.stopPropagation()">View ›</button>
+                        </td>
+                    </tr>
+                    <tr class="hover-row border-t border-gray-100 cursor-pointer" onclick="window.location.href='dashboard.html?student=Emily+Johnson'">
+                        <td class="px-6 py-4"><input type="checkbox" class="rounded border-gray-300" onclick="event.stopPropagation()"></td>
+                        <td class="px-6 py-4 flex items-center">
+                            <img src="https://ui-avatars.com/api/?name=Emily+Johnson" class="w-8 h-8 rounded-full mr-3">
+                            <span>Emily Johnson</span>
+                        </td>
+                        <td class="px-6 py-4">12</td>
+                        <td class="px-6 py-4">STU2025002</td>
+                        <td class="px-6 py-4">Chef</td>
+                        <td class="px-6 py-4">(555) 234-5678</td>
+                        <td class="px-6 py-4">emily.johnson@ba.edu</td>
+                        <td class="px-6 py-4">
+                            <button class="text-green-700 hover:text-green-800" onclick="event.stopPropagation()">View ›</button>
+                        </td>
+                    </tr>
+                    <tr class="hover-row border-t border-gray-100 cursor-pointer" onclick="window.location.href='dashboard.html?student=Michael+Brown'">
+                        <td class="px-6 py-4"><input type="checkbox" class="rounded border-gray-300" onclick="event.stopPropagation()"></td>
+                        <td class="px-6 py-4 flex items-center">
+                            <img src="https://ui-avatars.com/api/?name=Michael+Brown" class="w-8 h-8 rounded-full mr-3">
+                            <span>Michael Brown</span>
+                        </td>
+                        <td class="px-6 py-4">14</td>
+                        <td class="px-6 py-4">STU2025003</td>
+                        <td class="px-6 py-4">Dentist</td>
+                        <td class="px-6 py-4">(555) 345-6789</td>
+                        <td class="px-6 py-4">michael.brown@ba.edu</td>
+                        <td class="px-6 py-4">
+                            <button class="text-green-700 hover:text-green-800" onclick="event.stopPropagation()">View ›</button>
+                        </td>
+                    </tr>
+                    <tr class="hover-row border-t border-gray-100 cursor-pointer" onclick="window.location.href='dashboard.html?student=Sarah+Davis'">
+                        <td class="px-6 py-4"><input type="checkbox" class="rounded border-gray-300" onclick="event.stopPropagation()"></td>
+                        <td class="px-6 py-4 flex items-center">
+                            <img src="https://ui-avatars.com/api/?name=Sarah+Davis" class="w-8 h-8 rounded-full mr-3">
+                            <span>Sarah Davis</span>
+                        </td>
+                        <td class="px-6 py-4">11</td>
+                        <td class="px-6 py-4">STU2025004</td>
+                        <td class="px-6 py-4">Teacher</td>
+                        <td class="px-6 py-4">(555) 456-7890</td>
+                        <td class="px-6 py-4">sarah.davis@ba.edu</td>
+                        <td class="px-6 py-4">
+                            <button class="text-green-700 hover:text-green-800" onclick="event.stopPropagation()">View ›</button>
+                        </td>
+                    </tr>
+                    <tr class="hover-row border-t border-gray-100 cursor-pointer" onclick="window.location.href='dashboard.html?student=David+Wilson'">
+                        <td class="px-6 py-4"><input type="checkbox" class="rounded border-gray-300" onclick="event.stopPropagation()"></td>
+                        <td class="px-6 py-4 flex items-center">
+                            <img src="https://ui-avatars.com/api/?name=David+Wilson" class="w-8 h-8 rounded-full mr-3">
+                            <span>David Wilson</span>
+                        </td>
+                        <td class="px-6 py-4">13</td>
+                        <td class="px-6 py-4">STU2025005</td>
+                        <td class="px-6 py-4">Business Owner</td>
+                        <td class="px-6 py-4">(555) 567-8901</td>
+                        <td class="px-6 py-4">david.wilson@ba.edu</td>
+                        <td class="px-6 py-4">
+                            <button class="text-green-700 hover:text-green-800" onclick="event.stopPropagation()">View ›</button>
+                        </td>
+                    </tr>
+                    <tr class="hover-row border-t border-gray-100 cursor-pointer" onclick="window.location.href='dashboard.html?student=Jennifer+Miller'">
+                        <td class="px-6 py-4"><input type="checkbox" class="rounded border-gray-300" onclick="event.stopPropagation()"></td>
+                        <td class="px-6 py-4 flex items-center">
+                            <img src="https://ui-avatars.com/api/?name=Jennifer+Miller" class="w-8 h-8 rounded-full mr-3">
+                            <span>Jennifer Miller</span>
+                        </td>
+                        <td class="px-6 py-4">12</td>
+                        <td class="px-6 py-4">STU2025006</td>
+                        <td class="px-6 py-4">Scientist</td>
+                        <td class="px-6 py-4">(555) 678-9012</td>
+                        <td class="px-6 py-4">jennifer.miller@ba.edu</td>
+                        <td class="px-6 py-4">
+                            <button class="text-green-700 hover:text-green-800" onclick="event.stopPropagation()">View ›</button>
+                        </td>
+                    </tr>
+                    <tr class="hover-row border-t border-gray-100 cursor-pointer" onclick="window.location.href='dashboard.html?student=Robert+Taylor'">
+                        <td class="px-6 py-4"><input type="checkbox" class="rounded border-gray-300" onclick="event.stopPropagation()"></td>
+                        <td class="px-6 py-4 flex items-center">
+                            <img src="https://ui-avatars.com/api/?name=Robert+Taylor" class="w-8 h-8 rounded-full mr-3">
+                            <span>Robert Taylor</span>
+                        </td>
+                        <td class="px-6 py-4">14</td>
+                        <td class="px-6 py-4">STU2025007</td>
+                        <td class="px-6 py-4">Pilot</td>
+                        <td class="px-6 py-4">(555) 789-0123</td>
+                        <td class="px-6 py-4">robert.taylor@ba.edu</td>
+                        <td class="px-6 py-4">
+                            <button class="text-green-700 hover:text-green-800" onclick="event.stopPropagation()">View ›</button>
+                        </td>
+                    </tr>
+                    <tr class="hover-row border-t border-gray-100 cursor-pointer" onclick="window.location.href='dashboard.html?student=Jessica+Anderson'">
+                        <td class="px-6 py-4"><input type="checkbox" class="rounded border-gray-300" onclick="event.stopPropagation()"></td>
+                        <td class="px-6 py-4 flex items-center">
+                            <img src="https://ui-avatars.com/api/?name=Jessica+Anderson" class="w-8 h-8 rounded-full mr-3">
+                            <span>Jessica Anderson</span>
+                        </td>
+                        <td class="px-6 py-4">11</td>
+                        <td class="px-6 py-4">STU2025008</td>
+                        <td class="px-6 py-4">Psychologist</td>
+                        <td class="px-6 py-4">(555) 890-1234</td>
+                        <td class="px-6 py-4">jessica.anderson@ba.edu</td>
+                        <td class="px-6 py-4">
+                            <button class="text-green-700 hover:text-green-800" onclick="event.stopPropagation()">View ›</button>
+                        </td>
+                    </tr>
+                    <tr class="hover-row border-t border-gray-100 cursor-pointer" onclick="window.location.href='dashboard.html?student=Christopher+Martinez'">
+                        <td class="px-6 py-4"><input type="checkbox" class="rounded border-gray-300" onclick="event.stopPropagation()"></td>
+                        <td class="px-6 py-4 flex items-center">
+                            <img src="https://ui-avatars.com/api/?name=Christopher+Martinez" class="w-8 h-8 rounded-full mr-3">
+                            <span>Christopher Martinez</span>
+                        </td>
+                        <td class="px-6 py-4">13</td>
+                        <td class="px-6 py-4">STU2025009</td>
+                        <td class="px-6 py-4">Engineer</td>
+                        <td class="px-6 py-4">(555) 901-2345</td>
+                        <td class="px-6 py-4">christopher.martinez@ba.edu</td>
+                        <td class="px-6 py-4">
+                            <button class="text-green-700 hover:text-green-800" onclick="event.stopPropagation()">View ›</button>
+                        </td>
+                    </tr>
+                    <tr class="hover-row border-t border-gray-100 cursor-pointer" onclick="window.location.href='dashboard.html?student=Amanda+Thomas'">
+                        <td class="px-6 py-4"><input type="checkbox" class="rounded border-gray-300" onclick="event.stopPropagation()"></td>
+                        <td class="px-6 py-4 flex items-center">
+                            <img src="https://ui-avatars.com/api/?name=Amanda+Thomas" class="w-8 h-8 rounded-full mr-3">
+                            <span>Amanda Thomas</span>
+                        </td>
+                        <td class="px-6 py-4">12</td>
+                        <td class="px-6 py-4">STU2025010</td>
+                        <td class="px-6 py-4">Paediatrician</td>
+                        <td class="px-6 py-4">(555) 012-3456</td>
+                        <td class="px-6 py-4">amanda.thomas@ba.edu</td>
+                        <td class="px-6 py-4">
+                            <button class="text-green-700 hover:text-green-800" onclick="event.stopPropagation()">View ›</button>
+                        </td>
+                    </tr>
+                    <tr class="hover-row border-t border-gray-100 cursor-pointer" onclick="window.location.href='dashboard.html?student=Daniel+Jackson'">
+                        <td class="px-6 py-4"><input type="checkbox" class="rounded border-gray-300" onclick="event.stopPropagation()"></td>
+                        <td class="px-6 py-4 flex items-center">
+                            <img src="https://ui-avatars.com/api/?name=Daniel+Jackson" class="w-8 h-8 rounded-full mr-3">
+                            <span>Daniel Jackson</span>
+                        </td>
+                        <td class="px-6 py-4">14</td>
+                        <td class="px-6 py-4">STU2025011</td>
+                        <td class="px-6 py-4">Soldier</td>
+                        <td class="px-6 py-4">(555) 123-4567</td>
+                        <td class="px-6 py-4">daniel.jackson@ba.edu</td>
+                        <td class="px-6 py-4">
+                            <button class="text-green-700 hover:text-green-800" onclick="event.stopPropagation()">View ›</button>
+                        </td>
+                    </tr>
+                    <tr class="hover-row border-t border-gray-100 cursor-pointer" onclick="window.location.href='dashboard.html?student=Michelle+White'">
+                        <td class="px-6 py-4"><input type="checkbox" class="rounded border-gray-300" onclick="event.stopPropagation()"></td>
+                        <td class="px-6 py-4 flex items-center">
+                            <img src="https://ui-avatars.com/api/?name=Michelle+White" class="w-8 h-8 rounded-full mr-3">
+                            <span>Michelle White</span>
+                        </td>
+                        <td class="px-6 py-4">11</td>
+                        <td class="px-6 py-4">STU2025012</td>
+                        <td class="px-6 py-4">Anaesthetist</td>
+                        <td class="px-6 py-4">(555) 234-5678</td>
+                        <td class="px-6 py-4">michelle.white@ba.edu</td>
+                        <td class="px-6 py-4">
+                            <button class="text-green-700 hover:text-green-800" onclick="event.stopPropagation()">View ›</button>
+                        </td>
+                    </tr>
+                    <tr class="hover-row border-t border-gray-100 cursor-pointer" onclick="window.location.href='dashboard.html?student=Kevin+Harris'">
+                        <td class="px-6 py-4"><input type="checkbox" class="rounded border-gray-300" onclick="event.stopPropagation()"></td>
+                        <td class="px-6 py-4 flex items-center">
+                            <img src="https://ui-avatars.com/api/?name=Kevin+Harris" class="w-8 h-8 rounded-full mr-3">
+                            <span>Kevin Harris</span>
+                        </td>
+                        <td class="px-6 py-4">13</td>
+                        <td class="px-6 py-4">STU2025013</td>
+                        <td class="px-6 py-4">Teacher</td>
+                        <td class="px-6 py-4">(555) 345-6789</td>
+                        <td class="px-6 py-4">kevin.harris@ba.edu</td>
+                        <td class="px-6 py-4">
+                            <button class="text-green-700 hover:text-green-800" onclick="event.stopPropagation()">View ›</button>
+                        </td>
+                    </tr>
+                    <tr class="hover-row border-t border-gray-100 cursor-pointer" onclick="window.location.href='dashboard.html?student=Lisa+Martin'">
+                        <td class="px-6 py-4"><input type="checkbox" class="rounded border-gray-300" onclick="event.stopPropagation()"></td>
+                        <td class="px-6 py-4 flex items-center">
+                            <img src="https://ui-avatars.com/api/?name=Lisa+Martin" class="w-8 h-8 rounded-full mr-3">
+                            <span>Lisa Martin</span>
+                        </td>
+                        <td class="px-6 py-4">12</td>
+                        <td class="px-6 py-4">STU2025014</td>
+                        <td class="px-6 py-4">Hairdresser</td>
+                        <td class="px-6 py-4">(555) 456-7890</td>
+                        <td class="px-6 py-4">lisa.martin@ba.edu</td>
+                        <td class="px-6 py-4">
+                            <button class="text-green-700 hover:text-green-800" onclick="event.stopPropagation()">View ›</button>
+                        </td>
+                    </tr>
+                    <tr class="hover-row border-t border-gray-100 cursor-pointer" onclick="window.location.href='dashboard.html?student=Matthew+Thompson'">
+                        <td class="px-6 py-4"><input type="checkbox" class="rounded border-gray-300" onclick="event.stopPropagation()"></td>
+                        <td class="px-6 py-4 flex items-center">
+                            <img src="https://ui-avatars.com/api/?name=Matthew+Thompson" class="w-8 h-8 rounded-full mr-3">
+                            <span>Matthew Thompson</span>
+                        </td>
+                        <td class="px-6 py-4">14</td>
+                        <td class="px-6 py-4">STU2025015</td>
+                        <td class="px-6 py-4">Beautician</td>
+                        <td class="px-6 py-4">(555) 567-8901</td>
+                        <td class="px-6 py-4">matthew.thompson@ba.edu</td>
+                        <td class="px-6 py-4">
+                            <button class="text-green-700 hover:text-green-800" onclick="event.stopPropagation()">View ›</button>
+                        </td>
+                    </tr>
+                    <tr class="hover-row border-t border-gray-100 cursor-pointer" onclick="window.location.href='dashboard.html?student=Stephanie+Garcia'">
+                        <td class="px-6 py-4"><input type="checkbox" class="rounded border-gray-300" onclick="event.stopPropagation()"></td>
+                        <td class="px-6 py-4 flex items-center">
+                            <img src="https://ui-avatars.com/api/?name=Stephanie+Garcia" class="w-8 h-8 rounded-full mr-3">
+                            <span>Stephanie Garcia</span>
+                        </td>
+                        <td class="px-6 py-4">11</td>
+                        <td class="px-6 py-4">STU2025016</td>
+                        <td class="px-6 py-4">Doctor</td>
+                        <td class="px-6 py-4">(555) 678-9012</td>
+                        <td class="px-6 py-4">stephanie.garcia@ba.edu</td>
+                        <td class="px-6 py-4">
+                            <button class="text-green-700 hover:text-green-800" onclick="event.stopPropagation()">View ›</button>
+                        </td>
+                    </tr>
+                    <tr class="hover-row border-t border-gray-100 cursor-pointer" onclick="window.location.href='dashboard.html?student=Andrew+Robinson'">
+                        <td class="px-6 py-4"><input type="checkbox" class="rounded border-gray-300" onclick="event.stopPropagation()"></td>
+                        <td class="px-6 py-4 flex items-center">
+                            <img src="https://ui-avatars.com/api/?name=Andrew+Robinson" class="w-8 h-8 rounded-full mr-3">
+                            <span>Andrew Robinson</span>
+                        </td>
+                        <td class="px-6 py-4">13</td>
+                        <td class="px-6 py-4">STU2025017</td>
+                        <td class="px-6 py-4">Pilot</td>
+                        <td class="px-6 py-4">(555) 789-0123</td>
+                        <td class="px-6 py-4">andrew.robinson@ba.edu</td>
+                        <td class="px-6 py-4">
+                            <button class="text-green-700 hover:text-green-800" onclick="event.stopPropagation()">View ›</button>
+                        </td>
+                    </tr>
+                    <tr class="hover-row border-t border-gray-100 cursor-pointer" onclick="window.location.href='dashboard.html?student=Nicole+Clark'">
+                        <td class="px-6 py-4"><input type="checkbox" class="rounded border-gray-300" onclick="event.stopPropagation()"></td>
+                        <td class="px-6 py-4 flex items-center">
+                            <img src="https://ui-avatars.com/api/?name=Nicole+Clark" class="w-8 h-8 rounded-full mr-3">
+                            <span>Nicole Clark</span>
+                        </td>
+                        <td class="px-6 py-4">12</td>
+                        <td class="px-6 py-4">STU2025018</td>
+                        <td class="px-6 py-4">Manager</td>
+                        <td class="px-6 py-4">(555) 890-1234</td>
+                        <td class="px-6 py-4">nicole.clark@ba.edu</td>
+                        <td class="px-6 py-4">
+                            <button class="text-green-700 hover:text-green-800" onclick="event.stopPropagation()">View ›</button>
+                        </td>
+                    </tr>
+                    <tr class="hover-row border-t border-gray-100 cursor-pointer" onclick="window.location.href='dashboard.html?student=Joshua+Rodriguez'">
+                        <td class="px-6 py-4"><input type="checkbox" class="rounded border-gray-300" onclick="event.stopPropagation()"></td>
+                        <td class="px-6 py-4 flex items-center">
+                            <img src="https://ui-avatars.com/api/?name=Joshua+Rodriguez" class="w-8 h-8 rounded-full mr-3">
+                            <span>Joshua Rodriguez</span>
+                        </td>
+                        <td class="px-6 py-4">14</td>
+                        <td class="px-6 py-4">STU2025019</td>
+                        <td class="px-6 py-4">Engineer</td>
+                        <td class="px-6 py-4">(555) 901-2345</td>
+                        <td class="px-6 py-4">joshua.rodriguez@ba.edu</td>
+                        <td class="px-6 py-4">
+                            <button class="text-green-700 hover:text-green-800" onclick="event.stopPropagation()">View ›</button>
+                        </td>
+                    </tr>
+                    <tr class="hover-row border-t border-gray-100 cursor-pointer" onclick="window.location.href='dashboard.html?student=Elizabeth+Lewis'">
+                        <td class="px-6 py-4"><input type="checkbox" class="rounded border-gray-300" onclick="event.stopPropagation()"></td>
+                        <td class="px-6 py-4 flex items-center">
+                            <img src="https://ui-avatars.com/api/?name=Elizabeth+Lewis" class="w-8 h-8 rounded-full mr-3">
+                            <span>Elizabeth Lewis</span>
+                        </td>
+                        <td class="px-6 py-4">11</td>
+                        <td class="px-6 py-4">STU2025020</td>
+                        <td class="px-6 py-4">Oncologist</td>
+                        <td class="px-6 py-4">(555) 012-3457</td>
+                        <td class="px-6 py-4">elizabeth.lewis@ba.edu</td>
+                        <td class="px-6 py-4">
+                            <button class="text-green-700 hover:text-green-800" onclick="event.stopPropagation()">View ›</button>
+                        </td>
+                    </tr>
+                    <tr class="hover-row border-t border-gray-100 cursor-pointer" onclick="window.location.href='dashboard.html?student=Sarah+Johnson'">
+                        <td class="px-6 py-4"><input type="checkbox" class="rounded border-gray-300" onclick="event.stopPropagation()"></td>
+                        <td class="px-6 py-4 flex items-center">
+                            <img src="https://ui-avatars.com/api/?name=Sarah+Johnson" class="w-8 h-8 rounded-full mr-3">
+                            <span>Sarah Johnson</span>
+                        </td>
+                        <td class="px-6 py-4">12</td>
+                        <td class="px-6 py-4">STU002</td>
+                        <td class="px-6 py-4">Marine Biologist</td>
+                        <td class="px-6 py-4">+1 (555) 234-5678</td>
+                        <td class="px-6 py-4">sarah.johnson@student.edu</td>
+                        <td class="px-6 py-4">
+                            <button class="text-green-700 hover:text-green-800" onclick="event.stopPropagation()">View ›</button>
+                        </td>
+                    </tr>
+                    <tr class="hover-row border-t border-gray-100 cursor-pointer" onclick="window.location.href='dashboard.html?student=Michael+Davis'">
+                        <td class="px-6 py-4"><input type="checkbox" class="rounded border-gray-300" onclick="event.stopPropagation()"></td>
+                        <td class="px-6 py-4 flex items-center">
+                            <img src="https://ui-avatars.com/api/?name=Michael+Davis" class="w-8 h-8 rounded-full mr-3">
+                            <span>Michael Davis</span>
+                        </td>
+                        <td class="px-6 py-4">14</td>
+                        <td class="px-6 py-4">STU003</td>
+                        <td class="px-6 py-4">Wildlife Photographer</td>
+                        <td class="px-6 py-4">+1 (555) 345-6789</td>
+                        <td class="px-6 py-4">michael.davis@student.edu</td>
+                        <td class="px-6 py-4">
+                            <button class="text-green-700 hover:text-green-800" onclick="event.stopPropagation()">View ›</button>
+                        </td>
+                    </tr>
+                    <!-- Add more student rows as needed -->
+                </tbody>
+            </table>
+
+            <!-- Pagination -->
+            <div class="px-6 py-4 flex items-center justify-between border-t border-gray-100">
+                <button class="flex items-center text-gray-600 hover:text-gray-800">
+                    <i data-feather="chevron-left" class="w-5 h-5 mr-1"></i>
+                    Previous
+                </button>
+                <div class="flex items-center space-x-2">
+                    <button class="w-8 h-8 flex items-center justify-center rounded-full bg-green-700 text-white">1</button>
+                    <button class="w-8 h-8 flex items-center justify-center rounded-full text-gray-600 hover:bg-gray-100">2</button>
+                    <button class="w-8 h-8 flex items-center justify-center rounded-full text-gray-600 hover:bg-gray-100">3</button>
+                    <span class="text-gray-400">...</span>
+                    <button class="w-8 h-8 flex items-center justify-center rounded-full text-gray-600 hover:bg-gray-100">8</button>
+                    <button class="w-8 h-8 flex items-center justify-center rounded-full text-gray-600 hover:bg-gray-100">9</button>
+                    <button class="w-8 h-8 flex items-center justify-center rounded-full text-gray-600 hover:bg-gray-100">10</button>
+                </div>
+                <button class="flex items-center text-gray-600 hover:text-gray-800">
+                    Next
+                    <i data-feather="chevron-right" class="w-5 h-5 ml-1"></i>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Initialize Feather Icons
+        feather.replace();
+
+        // Search functionality
+        document.getElementById('studentSearch').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const tbody = document.querySelector('tbody');
+            const rows = tbody.getElementsByTagName('tr');
+
+            for (let row of rows) {
+                let text = '';
+                // Get text content from name and ID cells (columns 2 and 4)
+                const nameCell = row.querySelector('td:nth-child(2)');
+                const idCell = row.querySelector('td:nth-child(4)');
+                const aspirationCell = row.querySelector('td:nth-child(5)');
+                
+                if (nameCell && idCell && aspirationCell) {
+                    text = nameCell.textContent + ' ' + 
+                           idCell.textContent + ' ' + 
+                           aspirationCell.textContent;
+                }
+
+                if (text.toLowerCase().includes(searchTerm)) {
+                    row.style.display = '';
+                    // Highlight the matching text
+                    if (searchTerm) {
+                        const regex = new RegExp(searchTerm, 'gi');
+                        nameCell.innerHTML = nameCell.innerHTML.replace(/>([^<]+)</g, function(match, text) {
+                            return '>' + text.replace(regex, '<span class="search-highlight px-1">$&</span>') + '<';
+                        });
+                    }
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+
+            // Update the search result count
+            const visibleRows = [...rows].filter(row => row.style.display !== 'none').length;
+            const statsCard = document.querySelector('.grid-cols-4 .bg-white:first-child h3');
+            if (statsCard) {
+                statsCard.textContent = visibleRows;
+            }
+        });
+
+        // Clear highlighting when search is empty
+        document.getElementById('studentSearch').addEventListener('input', function(e) {
+            if (!e.target.value) {
+                const tbody = document.querySelector('tbody');
+                const rows = tbody.getElementsByTagName('tr');
+                for (let row of rows) {
+                    const nameCell = row.querySelector('td:nth-child(2)');
+                    if (nameCell) {
+                        nameCell.innerHTML = nameCell.innerHTML.replace(/<span class="search-highlight px-1">([^<]+)<\/span>/g, '$1');
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
