@@ -36,5 +36,6 @@ That data is sent back to the frontend and displayed to the user(counselor) so t
 
 Instructions for accessing repository
 1. Clone repository: git clone https://github.com/BE-Hackathon-2025/TEAM_AURA_28.git
+2. Run command: npm install node
 
  
